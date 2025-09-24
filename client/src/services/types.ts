@@ -1,0 +1,27 @@
+export type ListItemStatus = 'pending' | 'completed';
+
+export interface ListItem {
+  id: string;
+  name: string;
+  qty: number;
+  unit: string;
+  status: ListItemStatus;
+}
+
+export interface ListSummary {
+  id: string;
+  name: string;
+  createdAt: string; // ISO string
+}
+
+export interface List extends ListSummary {
+  items: ListItem[];
+}
+
+export interface ListsService {
+  getLists(): Promise<ListSummary[]>;
+  createList(name: string): Promise<ListSummary>;
+  getList(id: string): Promise<List>;
+  addItem(listId: string, name: string, qty?: number, unit?: string): Promise<ListItem>;
+  toggleItem(listId: string, itemId: string): Promise<ListItem>;
+}
