@@ -56,6 +56,147 @@ export default function ListEditor() {
     };
   }, [_list?.name, savedName]);
 
+  // Add +/- controls per item and long-press-to-edit item names
+  useEffect(() => {
+    if (!_list?.items?.length) return;
+    const listEl = document.querySelector('.mobile-shell .list') as HTMLElement | null;
+    if (!listEl) return;
+
+    // Ensure controls exist on each <li>
+    const ensureControls = () => {
+      listEl.querySelectorAll('li').forEach((li) => {
+        const el = li as HTMLElement;
+        if (el.dataset.controlsAttached === '1') return;
+
+        //const badge = el.querySelector('.badge');
+        // Create - and + buttons
+        const dec = document.createElement('button');
+        dec.type = 'button';
+        dec.className = 'button';
+        dec.textContent = '−';
+        dec.setAttribute('data-action', 'dec');
+
+        const inc = document.createElement('button');
+        inc.type = 'button';
+        inc.className = 'button';
+        inc.textContent = '+';
+        inc.setAttribute('data-action', 'inc');
+
+        el.appendChild(dec);
+        el.appendChild(inc);
+
+        el.dataset.controlsAttached = '1';
+      });
+    };
+
+    const parseBadge = (badge: Element | null) => {
+      const txt = (badge?.textContent ?? '').trim();
+      if (!txt) return { qty: 0, unit: '' };
+      const [first, ...rest] = txt.split(/\s+/);
+      const qty = Number.parseInt(first, 10) || 0;
+      const unit = rest.join(' ');
+      return { qty, unit };
+    };
+
+    const updateBadge = (badge: Element | null, qty: number, unit: string) => {
+      if (!badge) return;
+      (badge as HTMLElement).textContent = unit ? `${qty} ${unit}` : String(qty);
+    };
+
+    ensureControls();
+
+    // Click handling for +/- via delegation
+    const clickHandler = (e: Event) => {
+      const t = e.target as HTMLElement | null;
+      if (!t) return;
+      if (t.matches('button[data-action="inc"], button[data-action="dec"]')) {
+        e.preventDefault();
+        const li = t.closest('li');
+        if (!li) return;
+        const badge = li.querySelector('.badge');
+        const { qty, unit } = parseBadge(badge);
+        const inc = t.getAttribute('data-action') === 'inc';
+        const next = inc ? qty + 1 : qty - 1;
+        if (next <= 0) {
+          // Remove item from UI when qty hits 0
+          li.remove();
+          return;
+        }
+        updateBadge(badge, next, unit);
+      }
+    };
+
+    // Long-press on the item name span to edit
+    let lpTimer: any = null;
+    const startLongPress = (span: HTMLElement) => {
+      if (lpTimer) clearTimeout(lpTimer);
+      lpTimer = setTimeout(() => {
+        const initial = span.textContent ?? '';
+        const input = document.createElement('input');
+        input.className = 'input';
+        input.value = initial;
+        input.style.background = 'transparent';
+        input.style.width = '100%';
+        input.style.maxWidth = '100%';
+        input.addEventListener('keydown', (ke: KeyboardEvent) => {
+          if (ke.key === 'Enter') (ke.target as HTMLInputElement).blur();
+          if (ke.key === 'Escape') {
+            // cancel, restore original span
+            if (input.parentElement) {
+              input.replaceWith(span);
+            }
+          }
+        });
+        input.addEventListener('blur', () => {
+          const v = input.value.trim() || initial;
+          const newSpan = document.createElement('span');
+          newSpan.textContent = v;
+          // preserve line-through if it was completed
+          newSpan.style.textDecoration = span.style.textDecoration;
+          input.replaceWith(newSpan);
+        });
+        span.replaceWith(input);
+        setTimeout(() => input.select(), 0);
+      }, 500);
+    };
+    const cancelLongPress = () => {
+      if (lpTimer) {
+        clearTimeout(lpTimer);
+        lpTimer = null;
+      }
+    };
+
+    const pointerDown = (e: Event) => {
+      const t = e.target as HTMLElement | null;
+      if (!t) return;
+      // Match the first name span (exclude .badge)
+      if (t.tagName === 'SPAN' && !t.classList.contains('badge')) {
+        startLongPress(t);
+      }
+    };
+
+    listEl.addEventListener('click', clickHandler);
+    listEl.addEventListener('mousedown', pointerDown);
+    listEl.addEventListener('touchstart', pointerDown, { passive: true } as any);
+    window.addEventListener('mouseup', cancelLongPress);
+    window.addEventListener('touchend', cancelLongPress);
+    window.addEventListener('touchcancel', cancelLongPress);
+
+    // If the list content changes, re-inject controls
+    const mo = new MutationObserver(() => ensureControls());
+    mo.observe(listEl, { childList: true, subtree: true });
+
+    return () => {
+      listEl.removeEventListener('click', clickHandler);
+      listEl.removeEventListener('mousedown', pointerDown);
+      listEl.removeEventListener('touchstart', pointerDown as any);
+      window.removeEventListener('mouseup', cancelLongPress);
+      window.removeEventListener('touchend', cancelLongPress);
+      window.removeEventListener('touchcancel', cancelLongPress);
+      mo.disconnect();
+    };
+  }, [_list?.items?.length]);
+
   const handleNameCommit = () => {
     const next = nameInput.trim() || (_list?.name ?? '');
     setSavedName(next);
@@ -85,7 +226,6 @@ export default function ListEditor() {
       }
     : _list;
   const addItem = useAddItem(id ?? '');
-  const toggle = useToggleItem(id ?? '');
   const create = useCreateList();
   const { show } = useToast();
   const [text, setText] = useState('');
@@ -171,12 +311,6 @@ export default function ListEditor() {
         <ul className="list">
           {list.items.map((i) => (
             <li key={i.id}>
-              <input
-                className="checkbox"
-                type="checkbox"
-                checked={i.status === 'completed'}
-                onChange={() => toggle.mutate({ itemId: i.id })}
-              />
               <span style={{ textDecoration: i.status === 'completed' ? 'line-through' : 'none' }}>{i.name}</span>
               <span className="badge">{i.qty} {i.unit}</span>
             </li>
