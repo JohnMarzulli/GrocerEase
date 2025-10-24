@@ -6,7 +6,7 @@ export default function App() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
-      <Route path="/lists/:id" element={<ListEditor />} />
+      <Route path="/list" element={<ListEditor />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

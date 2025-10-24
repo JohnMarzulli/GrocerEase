@@ -19,11 +19,12 @@ export function useCreateList() {
   });
 }
 
-export function useList(id: string) {
+export function useList(id?: string, opts?: { enabled?: boolean }) {
   const api = useListsService();
   return useQuery<List>({
     queryKey: ['list', id],
-    queryFn: () => api.getList(id),
+    queryFn: () => api.getList(id as string),
+    enabled: opts?.enabled ?? true,
     retry: false, // if not found, surface error immediately so UI can create a new list
   });
 }

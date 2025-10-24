@@ -1,16 +1,91 @@
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useAddItem, useList, useToggleItem, useCreateList } from '@/services/hooks';
 import { FormEvent, useEffect, useRef, useState } from 'react';
-import { setCookie, LIST_COOKIE } from '@/utils/cookies';
+import { getCookie, setCookie, LIST_COOKIE } from '@/utils/cookies';
 import { useToast } from '@/state/toast';
 
 export default function ListEditor() {
-  const navigate = useNavigate();
-  const params = useParams();
-  const id = params.id!;
-  const { data: list, isLoading, error } = useList(id);
-  const addItem = useAddItem(id);
-  const toggle = useToggleItem(id);
+  const [id, setId] = useState<string | undefined>(() => getCookie(LIST_COOKIE) || undefined);
+  const { data: _list, isLoading, error } = useList(id, { enabled: !!id });
+
+  const [editingName, setEditingName] = useState(false);
+  const [nameInput, setNameInput] = useState('');
+  const [savedName, setSavedName] = useState<string | undefined>(undefined);
+  const nameInputRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    if (editingName && nameInputRef.current) {
+      nameInputRef.current.focus();
+      nameInputRef.current.select();
+    }
+  }, [editingName]);
+
+  // Long-press to enable name editing
+  useEffect(() => {
+    if (!_list?.name) return;
+    const header = document.querySelector('.mobile-shell .header') as HTMLElement | null;
+    if (!header) return;
+
+    let timer: any;
+    const start = () => {
+      timer = setTimeout(() => {
+        setNameInput(savedName ?? _list.name);
+        setEditingName(true);
+      }, 500);
+    };
+    const cancel = () => {
+      if (timer) {
+        clearTimeout(timer);
+        timer = null;
+      }
+    };
+
+    header.addEventListener('mousedown', start);
+    header.addEventListener('touchstart', start, { passive: true });
+    window.addEventListener('mouseup', cancel);
+    window.addEventListener('touchend', cancel);
+    window.addEventListener('touchcancel', cancel);
+
+    return () => {
+      cancel();
+      header.removeEventListener('mousedown', start);
+      header.removeEventListener('touchstart', start);
+      window.removeEventListener('mouseup', cancel);
+      window.removeEventListener('touchend', cancel);
+      window.removeEventListener('touchcancel', cancel);
+    };
+  }, [_list?.name, savedName]);
+
+  const handleNameCommit = () => {
+    const next = nameInput.trim() || (_list?.name ?? '');
+    setSavedName(next);
+    setEditingName(false);
+  };
+
+  const list: any = _list
+    ? {
+        ..._list,
+        name: editingName ? (
+          <input
+            ref={nameInputRef}
+            className="input"
+            style={{ fontSize: 32, textAlign: 'center', width: '100%', background: 'transparent' }}
+            value={nameInput}
+            onChange={(e) => setNameInput(e.target.value)}
+            onBlur={handleNameCommit}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                (e.target as HTMLInputElement).blur();
+              } else if (e.key === 'Escape') {
+                setEditingName(false);
+              }
+            }}
+          />
+        ) : savedName ?? _list.name,
+      }
+    : _list;
+  const addItem = useAddItem(id ?? '');
+  const toggle = useToggleItem(id ?? '');
   const create = useCreateList();
   const { show } = useToast();
   const [text, setText] = useState('');
@@ -23,121 +98,22 @@ export default function ListEditor() {
     }
   }, [list?.id]);
 
-  // If list fetch fails (e.g., not found), create a new one and navigate
+  // If list fetch fails (e.g., not found), create a new one and use it
   useEffect(() => {
     if (error && !creatingRef.current) {
       creatingRef.current = true;
-
-      // Install a global long-press handler on the header (list name) to allow renaming
-      if (!(window as any).__geLongPressInstalled) {
-        (window as any).__geLongPressInstalled = true;
-
-        let pressTimer: number | null = null;
-
-        const isHeader = (el: EventTarget | null) =>
-          el instanceof HTMLElement && el.classList.contains('header');
-
-        const clearTimer = () => {
-          if (pressTimer != null) {
-            clearTimeout(pressTimer);
-            pressTimer = null;
-          }
-        };
-
-        const onStart = (ev: MouseEvent | TouchEvent) => {
-          const target = ev.target as HTMLElement | null;
-          if (!isHeader(target)) return;
-
-          clearTimer();
-          pressTimer = window.setTimeout(async () => {
-            const headerEl = target!;
-            const currentName = headerEl.textContent?.trim() || 'Grocery List';
-            const newName = await new Promise<string | undefined>((resolve) => {
-              const original = headerEl.textContent || '';
-              headerEl.textContent = '';
-
-              const input = document.createElement('input');
-              input.type = 'text';
-              input.value = currentName;
-              input.className = 'input';
-              input.style.width = '100%';
-              input.style.font = 'inherit';
-              input.style.padding = '6px 10px';
-              input.style.boxSizing = 'border-box';
-
-              let resolved = false;
-              function finish(val?: string) {
-                if (resolved) return;
-                resolved = true;
-                input.removeEventListener('keydown', onKeyDown as any);
-                input.removeEventListener('blur', onBlur as any);
-                headerEl.textContent = original;
-                resolve(val);
-              }
-              function onKeyDown(e: any) {
-                if (e.key === 'Enter') {
-                  e.preventDefault();
-                  finish(input.value.trim());
-                } else if (e.key === 'Escape') {
-                  e.preventDefault();
-                  finish(undefined);
-                }
-              }
-              function onBlur() {
-                finish(input.value.trim());
-              }
-
-              input.addEventListener('keydown', onKeyDown as any);
-              input.addEventListener('blur', onBlur as any);
-
-              headerEl.appendChild(input);
-              setTimeout(() => {
-                input.focus();
-                input.select();
-              }, 0);
-            });
-            if (!newName || newName === currentName) return;
-
-            // Optimistically update UI
-            headerEl.textContent = newName;
-
-            // Try to persist by inferring the id from the URL
-            try {
-              const idFromUrl = window.location.pathname.split('/').pop();
-              if (idFromUrl) {
-                await fetch(`/api/lists/${idFromUrl}`, {
-                  method: 'PATCH',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ name: newName }),
-                }).catch(() => {});
-              }
-            } catch {
-              // swallow
-            }
-          }, 550); // long-press threshold
-        };
-
-        document.addEventListener('mousedown', onStart, { passive: true });
-        document.addEventListener('touchstart', onStart, { passive: true });
-        ['mouseup', 'mouseleave', 'touchend', 'touchcancel'].forEach((t) =>
-          document.addEventListener(t, clearTimer as any, { passive: true })
-        );
-      }
-
-      let name = 'Grocery List';
-
-      create.mutate(name, {
+      create.mutate('Grocery List', {
         onSuccess: (l) => {
           setCookie(LIST_COOKIE, l.id);
           show('New list created');
-          navigate(`/lists/${l.id}`, { replace: true });
+          setId(l.id);
         },
         onError: () => {
           creatingRef.current = false;
         },
       });
     }
-  }, [error, create, navigate, show]);
+  }, [error, create, show]);
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();

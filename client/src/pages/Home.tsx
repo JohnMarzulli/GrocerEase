@@ -11,20 +11,19 @@ export default function Home() {
   const goToList = useCallback(() => {
     const fromCookie = getCookie(LIST_COOKIE);
     if (fromCookie) {
-      // Optimistically navigate; ListEditor will validate or recreate if missing
-      navigate(`/lists/${fromCookie}`);
+      navigate('/list');
       return;
     }
     const first = lists?.[0];
     if (first) {
       setCookie(LIST_COOKIE, first.id);
-      navigate(`/lists/${first.id}`);
+      navigate('/list');
       return;
     }
     create.mutate('My List', {
       onSuccess: (l) => {
         setCookie(LIST_COOKIE, l.id);
-        navigate(`/lists/${l.id}`);
+        navigate('/list');
       },
     });
   }, [lists, create, navigate]);

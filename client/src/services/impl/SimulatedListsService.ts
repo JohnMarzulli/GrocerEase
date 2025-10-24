@@ -1,23 +1,36 @@
 import type { List, ListItem, ListSummary, ListsService } from '@/services/types';
+import { getCookie, setCookie, LIST_COOKIE } from '@/utils/cookies';
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const latency = () => 200 + Math.random() * 600;
 
 export class SimulatedListsService implements ListsService {
   private lists: Map<string, List> = new Map();
+  private storageKey = (id: string) => `ge_list_${id}`;
+  private save(list: List) {
+    try { localStorage.setItem(this.storageKey(list.id), JSON.stringify(list)); } catch {}
+  }
 
   constructor() {
+    const existingId = getCookie(LIST_COOKIE);
+    if (existingId) {
+      const saved = localStorage.getItem(this.storageKey(existingId));
+      if (saved) {
+        const list = JSON.parse(saved) as List;
+        this.lists.set(list.id, list);
+        return;
+      }
+    }
     const id = crypto.randomUUID();
     const list: List = {
       id,
-      name: 'My First List',
+      name: 'My List',
       createdAt: new Date().toISOString(),
-      items: [
-        { id: crypto.randomUUID(), name: 'Apples', qty: 4, unit: 'ea', status: 'pending' },
-        { id: crypto.randomUUID(), name: 'Bread', qty: 1, unit: 'loaf', status: 'pending' },
-      ],
+      items: [],
     };
     this.lists.set(id, list);
+    setCookie(LIST_COOKIE, id);
+    this.save(list);
   }
 
   async getLists(): Promise<ListSummary[]> {
@@ -27,9 +40,17 @@ export class SimulatedListsService implements ListsService {
 
   async createList(name: string): Promise<ListSummary> {
     await sleep(latency());
+    // Single-list behavior: return existing list if present
+    const first = this.lists.values().next().value as List | undefined;
+    if (first) {
+      return { id: first.id, name: first.name, createdAt: first.createdAt };
+    }
     const id = crypto.randomUUID();
     const createdAt = new Date().toISOString();
-    this.lists.set(id, { id, name, createdAt, items: [] });
+    const list: List = { id, name, createdAt, items: [] };
+    this.lists.set(id, list);
+    setCookie(LIST_COOKIE, id);
+    this.save(list);
     return { id, name, createdAt };
   }
 
@@ -51,6 +72,7 @@ export class SimulatedListsService implements ListsService {
     }
     const item: ListItem = { id: crypto.randomUUID(), name, qty, unit, status: 'pending' };
     list.items.unshift(item);
+    this.save(list);
     return item;
   }
 
@@ -65,6 +87,7 @@ export class SimulatedListsService implements ListsService {
       throw new Error('Item not found');
     }
     item.status = item.status === 'pending' ? 'completed' : 'pending';
+    this.save(list);
     return item;
   }
 }
