@@ -17,6 +17,7 @@ if (mode === 'mock') {
   listsImpl = SimulatedListsService;
 }
 
-container.register<ListsService>(TOKENS.ListsService, { useClass: listsImpl });
+// Ensure a single instance app-wide so in-memory simulators/mocks share state
+container.registerSingleton<ListsService>(TOKENS.ListsService, listsImpl);
 
 export { container };

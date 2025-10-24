@@ -1,42 +1,43 @@
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useCreateList, useLists } from '@/services/hooks';
-import { FormEvent, useState } from 'react';
+import { useCallback } from 'react';
+import { getCookie, setCookie, LIST_COOKIE } from '@/utils/cookies';
 
 export default function Home() {
-  const { data: lists, isLoading } = useLists();
+  const { data: lists } = useLists();
   const create = useCreateList();
-  const [name, setName] = useState('');
+  const navigate = useNavigate();
 
-  const onSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    if (!name.trim()) return;
-    create.mutate(name.trim(), { onSuccess: () => setName('') });
-  };
+  const goToList = useCallback(() => {
+    const fromCookie = getCookie(LIST_COOKIE);
+    if (fromCookie) {
+      // Optimistically navigate; ListEditor will validate or recreate if missing
+      navigate(`/lists/${fromCookie}`);
+      return;
+    }
+    const first = lists?.[0];
+    if (first) {
+      setCookie(LIST_COOKIE, first.id);
+      navigate(`/lists/${first.id}`);
+      return;
+    }
+    create.mutate('My List', {
+      onSuccess: (l) => {
+        setCookie(LIST_COOKIE, l.id);
+        navigate(`/lists/${l.id}`);
+      },
+    });
+  }, [lists, create, navigate]);
 
   return (
-    <div style={{ maxWidth: 640, margin: '2rem auto', padding: '0 1rem' }}>
-      <h1>GrocerEase</h1>
-      <form onSubmit={onSubmit} style={{ display: 'flex', gap: 8 }}>
-        <input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="New list name"
-          style={{ flex: 1, padding: 8 }}
-        />
-        <button type="submit" disabled={create.isPending}>
-          {create.isPending ? 'Creating…' : 'Create'}
-        </button>
-      </form>
-
-      <h2 style={{ marginTop: 24 }}>Lists</h2>
-      {isLoading && <p>Loading…</p>}
-      <ul style={{ listStyle: 'none', padding: 0 }}>
-        {lists?.map((l) => (
-          <li key={l.id} style={{ padding: '8px 0', borderBottom: '1px solid #eee' }}>
-            <Link to={`/lists/${l.id}`}>{l.name}</Link>
-          </li>
-        ))}
-      </ul>
+    <div className="mobile-shell">
+      <header className="header" style={{ textAlign: 'center', fontSize: '3rem' }}>GrocerEase</header>
+      <main className="content">
+        <section className="grid2" style={{ display: 'flex', justifyContent: 'center', flexDirection: 'column', alignItems: 'center', marginTop: '25vh' }}>
+          <button className="tile" style={{ width: '50%' }} onClick={() => { /* future: shopping flow */ }}>Shop</button><br/>
+          <button className="tile" style={{ width: '50%' }} onClick={goToList}>List</button>
+        </section>
+      </main>
     </div>
   );
 }

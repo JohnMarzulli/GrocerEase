@@ -21,7 +21,11 @@ export function useCreateList() {
 
 export function useList(id: string) {
   const api = useListsService();
-  return useQuery<List>({ queryKey: ['list', id], queryFn: () => api.getList(id) });
+  return useQuery<List>({
+    queryKey: ['list', id],
+    queryFn: () => api.getList(id),
+    retry: false, // if not found, surface error immediately so UI can create a new list
+  });
 }
 
 export function useAddItem(id: string) {
