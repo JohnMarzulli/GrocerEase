@@ -115,12 +115,41 @@ export default function ListEditor() {
             }}
           />
         ) : (
-          <>
-            {list.name}
-            <div style={{ marginTop: 8 }}>
-              <button className="home-btn" onClick={() => { setNameInput(list.name); setEditingName(true); }}>Rename</button>
-            </div>
-          </>
+            <>
+            {(() => {
+              let timer: number | null = null;
+
+              const start = () => {
+              if (timer) window.clearTimeout(timer);
+              timer = window.setTimeout(() => {
+                timer = null;
+                setNameInput(list.name);
+                setEditingName(true);
+              }, 500);
+              };
+
+              const cancel = () => {
+              if (timer) {
+                window.clearTimeout(timer);
+                timer = null;
+              }
+              };
+
+              return (
+              <span
+                onPointerDown={start}
+                onPointerUp={cancel}
+                onPointerLeave={cancel}
+                onPointerCancel={cancel}
+                onContextMenu={(e) => e.preventDefault()}
+                style={{ userSelect: 'none', cursor: 'default' }}
+                title="Long-press to rename"
+              >
+                {list.name}
+              </span>
+              );
+            })()}
+            </>
         )}
       </header>
       <main className="content">
