@@ -18,7 +18,8 @@
       "@/services/*": ["src/services/*"],
       "@/di/*": ["src/di/*"],
       "@/state/*": ["src/state/*"],
-      "@/utils/*": ["src/utils/*"]
+      "@/utils/*": ["src/utils/*"],
+      "@/core/*": ["src/core/*"]
     }
   },
   "include": ["src", "vite-env.d.ts"],

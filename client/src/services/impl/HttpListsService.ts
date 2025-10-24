@@ -29,4 +29,20 @@ export class HttpListsService implements ListsService {
   async toggleItem(listId: string, itemId: string): Promise<ListItem> {
     return this.json(`${this.base}/list-items/${itemId}`, { method: 'PATCH', body: JSON.stringify({ op: 'toggle', listId }) });
   }
+
+  async updateListName(listId: string, name: string): Promise<List> {
+    return this.json(`${this.base}/lists/${listId}`, { method: 'PATCH', body: JSON.stringify({ name }) });
+  }
+
+  async incrementItem(listId: string, itemId: string, step = 1): Promise<ListItem> {
+    return this.json(`${this.base}/list-items/${itemId}`, { method: 'PATCH', body: JSON.stringify({ op: 'increment', step, listId }) });
+  }
+
+  async decrementItem(listId: string, itemId: string, step = 1): Promise<ListItem | undefined> {
+    return this.json(`${this.base}/list-items/${itemId}`, { method: 'PATCH', body: JSON.stringify({ op: 'decrement', step, listId }) });
+  }
+
+  async removeItem(listId: string, itemId: string): Promise<void> {
+    await this.json(`${this.base}/list-items/${itemId}`, { method: 'DELETE', body: JSON.stringify({ listId }) });
+  }
 }

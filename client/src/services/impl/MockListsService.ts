@@ -59,4 +59,39 @@ export class MockListsService implements ListsService {
     item.status = item.status === 'pending' ? 'completed' : 'pending';
     return item;
   }
+
+  async updateListName(listId: string, name: string): Promise<List> {
+    const list = this.lists.get(listId);
+    if (!list) throw new Error('List not found');
+    list.name = name.trim() || 'Grocery List';
+    return JSON.parse(JSON.stringify(list));
+  }
+
+  async incrementItem(listId: string, itemId: string, step = 1): Promise<ListItem | undefined> {
+    const list = this.lists.get(listId);
+    if (!list) throw new Error('List not found');
+    const it = list.items.find(i => i.id === itemId);
+    if (!it) throw new Error('Item not found');
+    it.qty += Math.max(1, step);
+    return it;
+  }
+
+  async decrementItem(listId: string, itemId: string, step = 1): Promise<ListItem | undefined> {
+    const list = this.lists.get(listId);
+    if (!list) throw new Error('List not found');
+    const it = list.items.find(i => i.id === itemId);
+    if (!it) throw new Error('Item not found');
+    it.qty -= Math.max(1, step);
+    if (it.qty <= 0) {
+      list.items = list.items.filter(i => i.id !== itemId);
+      return undefined;
+    }
+    return it;
+  }
+
+  async removeItem(listId: string, itemId: string): Promise<void> {
+    const list = this.lists.get(listId);
+    if (!list) throw new Error('List not found');
+    list.items = list.items.filter(i => i.id !== itemId);
+  }
 }

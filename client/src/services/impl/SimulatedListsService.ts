@@ -1,93 +1,74 @@
 import type { List, ListItem, ListSummary, ListsService } from '@/services/types';
-import { getCookie, setCookie, LIST_COOKIE } from '@/utils/cookies';
+import ListManager from '@/core/ListManager';
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const latency = () => 200 + Math.random() * 600;
 
 export class SimulatedListsService implements ListsService {
-  private lists: Map<string, List> = new Map();
-  private storageKey = (id: string) => `ge_list_${id}`;
-  private save(list: List) {
-    try { localStorage.setItem(this.storageKey(list.id), JSON.stringify(list)); } catch {}
-  }
+  private mgr: ListManager;
 
   constructor() {
-    const existingId = getCookie(LIST_COOKIE);
-    if (existingId) {
-      const saved = localStorage.getItem(this.storageKey(existingId));
-      if (saved) {
-        const list = JSON.parse(saved) as List;
-        this.lists.set(list.id, list);
-        return;
-      }
-    }
-    const id = crypto.randomUUID();
-    const list: List = {
-      id,
-      name: 'My List',
-      createdAt: new Date().toISOString(),
-      items: [],
-    };
-    this.lists.set(id, list);
-    setCookie(LIST_COOKIE, id);
-    this.save(list);
+    this.mgr = ListManager.load();
   }
 
   async getLists(): Promise<ListSummary[]> {
     await sleep(latency());
-    return Array.from(this.lists.values()).map(({ id, name, createdAt }) => ({ id, name, createdAt }));
+    const l = this.mgr.getList();
+    return [{ id: l.id, name: l.name, createdAt: l.createdAt }];
   }
 
   async createList(name: string): Promise<ListSummary> {
     await sleep(latency());
-    // Single-list behavior: return existing list if present
-    const first = this.lists.values().next().value as List | undefined;
-    if (first) {
-      return { id: first.id, name: first.name, createdAt: first.createdAt };
-    }
-    const id = crypto.randomUUID();
-    const createdAt = new Date().toISOString();
-    const list: List = { id, name, createdAt, items: [] };
-    this.lists.set(id, list);
-    setCookie(LIST_COOKIE, id);
-    this.save(list);
-    return { id, name, createdAt };
+    const l = this.mgr.getList();
+    return { id: l.id, name: l.name, createdAt: l.createdAt };
   }
 
   async getList(id: string): Promise<List> {
     await sleep(latency());
-    const found = this.lists.get(id);
-    if (!found) {
-      throw new Error('List not found');
-    }
-    // deep copy
-    return JSON.parse(JSON.stringify(found));
+    const l = this.mgr.getList();
+    if (id && id !== l.id) throw new Error('List not found');
+    return l;
   }
 
   async addItem(listId: string, name: string, qty = 1, unit = 'ea'): Promise<ListItem> {
     await sleep(latency());
-    const list = this.lists.get(listId);
-    if (!list) {
-      throw new Error('List not found');
-    }
-    const item: ListItem = { id: crypto.randomUUID(), name, qty, unit, status: 'pending' };
-    list.items.unshift(item);
-    this.save(list);
-    return item;
+    if (listId && listId !== this.mgr.getList().id) throw new Error('List not found');
+    return this.mgr.addItem(name, qty, unit);
   }
 
   async toggleItem(listId: string, itemId: string): Promise<ListItem> {
     await sleep(latency());
-    const list = this.lists.get(listId);
-    if (!list) {
-      throw new Error('List not found');
-    }
-    const item = list.items.find((i) => i.id === itemId);
-    if (!item) {
-      throw new Error('Item not found');
-    }
+    const l = this.mgr.getList();
+    if (listId && listId !== l.id) throw new Error('List not found');
+    const item = l.items.find(i => i.id === itemId);
+    if (!item) throw new Error('Item not found');
     item.status = item.status === 'pending' ? 'completed' : 'pending';
-    this.save(list);
+    this.mgr.save();
     return item;
+  }
+
+  async updateListName(listId: string, name: string): Promise<List> {
+    const l = this.mgr.getList();
+    if (listId && listId !== l.id) throw new Error('List not found');
+    this.mgr.setName(name);
+    return this.mgr.getList();
+  }
+
+  async incrementItem(listId: string, itemId: string, step = 1): Promise<ListItem | undefined> {
+    const l = this.mgr.getList();
+    if (listId && listId !== l.id) throw new Error('List not found');
+    return this.mgr.increment(itemId, step);
+  }
+
+  async decrementItem(listId: string, itemId: string, step = 1): Promise<ListItem | undefined> {
+    const l = this.mgr.getList();
+    if (listId && listId !== l.id) throw new Error('List not found');
+    return this.mgr.decrement(itemId, step);
+  }
+
+  async removeItem(listId: string, itemId: string): Promise<void> {
+    const l = this.mgr.getList();
+    if (listId && listId !== l.id) throw new Error('List not found');
+    this.mgr.remove(itemId);
   }
 }
