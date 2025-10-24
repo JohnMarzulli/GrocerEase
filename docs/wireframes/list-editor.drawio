@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e">
     <diagram id="Npyo4NlFzo5oswFPgFNX" name="Page-1">
-        <mxGraphModel dx="306" dy="190" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+        <mxGraphModel dx="366" dy="228" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -22,11 +22,8 @@
                 <mxCell id="10" value="" style="group" parent="1" vertex="1" connectable="0">
                     <mxGeometry x="50" y="120" width="130" height="210" as="geometry"/>
                 </mxCell>
-                <mxCell id="7" value="" style="html=1;verticalLabelPosition=bottom;align=center;labelBackgroundColor=#ffffff;verticalAlign=top;strokeWidth=2;strokeColor=#0080F0;shadow=0;dashed=0;shape=mxgraph.ios7.icons.add;" parent="10" vertex="1">
-                    <mxGeometry y="5" width="10" height="10" as="geometry"/>
-                </mxCell>
                 <mxCell id="6" value="New Item Name" style="strokeWidth=1;html=1;shadow=0;dashed=0;shape=mxgraph.ios.iTextInput;strokeColor=#444444;buttonText=;fontSize=8;whiteSpace=wrap;align=left;" parent="10" vertex="1">
-                    <mxGeometry x="20" y="2.5" width="90" height="15" as="geometry"/>
+                    <mxGeometry y="2.5" width="90" height="15" as="geometry"/>
                 </mxCell>
                 <mxCell id="4" value="" style="edgeStyle=none;orthogonalLoop=1;jettySize=auto;html=1;shape=link;width=-3.8888888888888893;entryX=0.067;entryY=0.129;entryDx=0;entryDy=0;entryPerimeter=0;exitX=0.933;exitY=0.129;exitDx=0;exitDy=0;exitPerimeter=0;" parent="1" edge="1">
                     <mxGeometry width="80" relative="1" as="geometry">
@@ -49,97 +46,46 @@
                     <mxGeometry x="50" y="150" width="140" height="180" as="geometry"/>
                 </mxCell>
                 <mxCell id="13" value="" style="group" parent="35" vertex="1" connectable="0">
-                    <mxGeometry width="140" height="180" as="geometry"/>
+                    <mxGeometry x="-10" width="140" height="180" as="geometry"/>
                 </mxCell>
                 <mxCell id="8" value="Item 1" style="text;strokeColor=none;align=left;fillColor=none;html=1;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="13" vertex="1">
-                    <mxGeometry x="20" width="90" height="10" as="geometry"/>
-                </mxCell>
-                <mxCell id="9" value="" style="html=1;verticalLabelPosition=bottom;align=center;labelBackgroundColor=#ffffff;verticalAlign=top;strokeWidth=2;strokeColor=#0080F0;shadow=0;dashed=0;shape=mxgraph.ios7.icons.compose;" parent="13" vertex="1">
-                    <mxGeometry width="9.1" height="10" as="geometry"/>
+                    <mxGeometry x="10" width="90" height="10" as="geometry"/>
                 </mxCell>
                 <mxCell id="43" value="" style="group" vertex="1" connectable="0" parent="13">
                     <mxGeometry x="70" y="-2.5" width="47" height="15" as="geometry"/>
                 </mxCell>
-                <mxCell id="38" value="1ea" style="text;strokeColor=none;align=center;fillColor=none;html=1;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="43">
-                    <mxGeometry width="26" height="15" as="geometry"/>
-                </mxCell>
                 <mxCell id="39" value="-" style="text;strokeColor=none;align=center;fillColor=none;html=1;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="43">
-                    <mxGeometry x="26" width="10" height="10" as="geometry"/>
+                    <mxGeometry x="37" width="10" height="10" as="geometry"/>
                 </mxCell>
-                <mxCell id="40" value="+" style="text;strokeColor=none;align=center;fillColor=none;html=1;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="43">
-                    <mxGeometry x="36" y="2.5" width="11" height="10" as="geometry"/>
+                <mxCell id="40" value="+" style="text;strokeColor=none;align=center;fillColor=none;html=1;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="13">
+                    <mxGeometry x="117" width="11" height="10" as="geometry"/>
+                </mxCell>
+                <mxCell id="38" value="1ea" style="text;strokeColor=none;align=center;fillColor=none;html=1;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="13">
+                    <mxGeometry x="80.5" y="-2.5" width="26" height="15" as="geometry"/>
                 </mxCell>
                 <mxCell id="14" value="" style="group" parent="35" vertex="1" connectable="0">
-                    <mxGeometry y="20" width="120" height="12.5" as="geometry"/>
+                    <mxGeometry x="-20" y="20" width="120" height="12.5" as="geometry"/>
                 </mxCell>
                 <mxCell id="15" value="Item 2" style="text;strokeColor=none;align=left;fillColor=none;html=1;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="14" vertex="1">
                     <mxGeometry x="20" width="90" height="10" as="geometry"/>
                 </mxCell>
-                <mxCell id="16" value="" style="html=1;verticalLabelPosition=bottom;align=center;labelBackgroundColor=#ffffff;verticalAlign=top;strokeWidth=2;strokeColor=#0080F0;shadow=0;dashed=0;shape=mxgraph.ios7.icons.compose;" parent="14" vertex="1">
-                    <mxGeometry width="9.1" height="10" as="geometry"/>
-                </mxCell>
-                <mxCell id="44" value="" style="group" vertex="1" connectable="0" parent="14">
-                    <mxGeometry x="73" y="-2.5" width="47" height="15" as="geometry"/>
-                </mxCell>
-                <mxCell id="45" value="1ea" style="text;strokeColor=none;align=center;fillColor=none;html=1;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="44">
-                    <mxGeometry width="26" height="15" as="geometry"/>
-                </mxCell>
-                <mxCell id="46" value="-" style="text;strokeColor=none;align=center;fillColor=none;html=1;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="44">
-                    <mxGeometry x="26" width="10" height="10" as="geometry"/>
-                </mxCell>
-                <mxCell id="47" value="+" style="text;strokeColor=none;align=center;fillColor=none;html=1;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="44">
-                    <mxGeometry x="36" y="2.5" width="11" height="10" as="geometry"/>
-                </mxCell>
                 <mxCell id="18" value="" style="group" parent="35" vertex="1" connectable="0">
-                    <mxGeometry y="40" width="130" height="140" as="geometry"/>
+                    <mxGeometry x="-20" y="40" width="130" height="140" as="geometry"/>
                 </mxCell>
                 <mxCell id="19" value="Item 3" style="text;strokeColor=none;align=left;fillColor=none;html=1;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="18" vertex="1">
                     <mxGeometry x="20" width="90" height="10" as="geometry"/>
                 </mxCell>
-                <mxCell id="20" value="" style="html=1;verticalLabelPosition=bottom;align=center;labelBackgroundColor=#ffffff;verticalAlign=top;strokeWidth=2;strokeColor=#0080F0;shadow=0;dashed=0;shape=mxgraph.ios7.icons.compose;" parent="18" vertex="1">
-                    <mxGeometry width="9.1" height="10" as="geometry"/>
-                </mxCell>
                 <mxCell id="22" value="" style="group" parent="35" vertex="1" connectable="0">
-                    <mxGeometry y="60" width="120" height="10" as="geometry"/>
+                    <mxGeometry x="-10" y="60" width="120" height="10" as="geometry"/>
                 </mxCell>
                 <mxCell id="23" value="Item 4" style="text;strokeColor=none;align=left;fillColor=none;html=1;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="22" vertex="1">
-                    <mxGeometry x="20" width="90" height="10" as="geometry"/>
-                </mxCell>
-                <mxCell id="24" value="" style="html=1;verticalLabelPosition=bottom;align=center;labelBackgroundColor=#ffffff;verticalAlign=top;strokeWidth=2;strokeColor=#0080F0;shadow=0;dashed=0;shape=mxgraph.ios7.icons.compose;" parent="22" vertex="1">
-                    <mxGeometry width="9.1" height="10" as="geometry"/>
-                </mxCell>
-                <mxCell id="52" value="" style="group" vertex="1" connectable="0" parent="22">
-                    <mxGeometry x="73" y="-5" width="47" height="15" as="geometry"/>
-                </mxCell>
-                <mxCell id="53" value="1ea" style="text;strokeColor=none;align=center;fillColor=none;html=1;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="52">
-                    <mxGeometry width="26" height="15" as="geometry"/>
-                </mxCell>
-                <mxCell id="54" value="-" style="text;strokeColor=none;align=center;fillColor=none;html=1;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="52">
-                    <mxGeometry x="26" width="10" height="10" as="geometry"/>
-                </mxCell>
-                <mxCell id="55" value="+" style="text;strokeColor=none;align=center;fillColor=none;html=1;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="52">
-                    <mxGeometry x="36" y="2.5" width="11" height="10" as="geometry"/>
+                    <mxGeometry x="10" width="90" height="10" as="geometry"/>
                 </mxCell>
                 <mxCell id="26" value="" style="group" parent="35" vertex="1" connectable="0">
-                    <mxGeometry y="80" width="120" height="12.5" as="geometry"/>
+                    <mxGeometry x="-20" y="80" width="120" height="12.5" as="geometry"/>
                 </mxCell>
                 <mxCell id="27" value="Item 5" style="text;strokeColor=none;align=left;fillColor=none;html=1;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="26" vertex="1">
                     <mxGeometry x="20" width="90" height="10" as="geometry"/>
-                </mxCell>
-                <mxCell id="28" value="" style="html=1;verticalLabelPosition=bottom;align=center;labelBackgroundColor=#ffffff;verticalAlign=top;strokeWidth=2;strokeColor=#0080F0;shadow=0;dashed=0;shape=mxgraph.ios7.icons.compose;" parent="26" vertex="1">
-                    <mxGeometry width="9.1" height="10" as="geometry"/>
-                </mxCell>
-                <mxCell id="56" value="" style="group" vertex="1" connectable="0" parent="26">
-                    <mxGeometry x="73" y="-2.5" width="47" height="15" as="geometry"/>
-                </mxCell>
-                <mxCell id="57" value="1ea" style="text;strokeColor=none;align=center;fillColor=none;html=1;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="56">
-                    <mxGeometry width="26" height="15" as="geometry"/>
-                </mxCell>
-                <mxCell id="58" value="-" style="text;strokeColor=none;align=center;fillColor=none;html=1;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="56">
-                    <mxGeometry x="26" width="10" height="10" as="geometry"/>
-                </mxCell>
-                <mxCell id="59" value="+" style="text;strokeColor=none;align=center;fillColor=none;html=1;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="56">
-                    <mxGeometry x="36" y="2.5" width="11" height="10" as="geometry"/>
                 </mxCell>
                 <mxCell id="48" value="" style="group" vertex="1" connectable="0" parent="1">
                     <mxGeometry x="120" y="187.5" width="47" height="15" as="geometry"/>
@@ -152,6 +98,45 @@
                 </mxCell>
                 <mxCell id="51" value="+" style="text;strokeColor=none;align=center;fillColor=none;html=1;verticalAlign=middle;whiteSpace=wrap;rounded=0;rotation=90;" vertex="1" parent="48">
                     <mxGeometry x="36" y="2.5" width="11" height="10" as="geometry"/>
+                </mxCell>
+                <mxCell id="44" value="" style="group" vertex="1" connectable="0" parent="1">
+                    <mxGeometry x="120" y="167.5" width="47" height="15" as="geometry"/>
+                </mxCell>
+                <mxCell id="45" value="1ea" style="text;strokeColor=none;align=center;fillColor=none;html=1;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="44">
+                    <mxGeometry width="26" height="15" as="geometry"/>
+                </mxCell>
+                <mxCell id="46" value="-" style="text;strokeColor=none;align=center;fillColor=none;html=1;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="44">
+                    <mxGeometry x="26" width="10" height="10" as="geometry"/>
+                </mxCell>
+                <mxCell id="47" value="+" style="text;strokeColor=none;align=center;fillColor=none;html=1;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="44">
+                    <mxGeometry x="36" y="2.5" width="11" height="10" as="geometry"/>
+                </mxCell>
+                <mxCell id="52" value="" style="group" vertex="1" connectable="0" parent="1">
+                    <mxGeometry x="120" y="205" width="47" height="15" as="geometry"/>
+                </mxCell>
+                <mxCell id="53" value="1ea" style="text;strokeColor=none;align=center;fillColor=none;html=1;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="52">
+                    <mxGeometry width="26" height="15" as="geometry"/>
+                </mxCell>
+                <mxCell id="54" value="-" style="text;strokeColor=none;align=center;fillColor=none;html=1;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="52">
+                    <mxGeometry x="26" width="10" height="10" as="geometry"/>
+                </mxCell>
+                <mxCell id="55" value="+" style="text;strokeColor=none;align=center;fillColor=none;html=1;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="52">
+                    <mxGeometry x="36" y="2.5" width="11" height="10" as="geometry"/>
+                </mxCell>
+                <mxCell id="56" value="" style="group" vertex="1" connectable="0" parent="1">
+                    <mxGeometry x="120" y="227.5" width="47" height="15" as="geometry"/>
+                </mxCell>
+                <mxCell id="58" value="-" style="text;strokeColor=none;align=center;fillColor=none;html=1;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="56">
+                    <mxGeometry x="26" width="10" height="10" as="geometry"/>
+                </mxCell>
+                <mxCell id="59" value="+" style="text;strokeColor=none;align=center;fillColor=none;html=1;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="56">
+                    <mxGeometry x="36" y="2.5" width="11" height="10" as="geometry"/>
+                </mxCell>
+                <mxCell id="57" value="1ea" style="text;strokeColor=none;align=center;fillColor=none;html=1;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="56">
+                    <mxGeometry width="26" height="15" as="geometry"/>
+                </mxCell>
+                <mxCell id="61" value="Add" style="text;strokeColor=#82b366;align=center;fillColor=#d5e8d4;html=1;verticalAlign=middle;whiteSpace=wrap;rounded=1;" vertex="1" parent="1">
+                    <mxGeometry x="140" y="120" width="30" height="20" as="geometry"/>
                 </mxCell>
             </root>
         </mxGraphModel>
