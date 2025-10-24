@@ -71,4 +71,12 @@ export class SimulatedListsService implements ListsService {
     if (listId && listId !== l.id) throw new Error('List not found');
     this.mgr.remove(itemId);
   }
+
+  async updateItemName(listId: string, itemId: string, name: string): Promise<ListItem> {
+    const l = this.mgr.getList();
+    if (listId && listId !== l.id) throw new Error('List not found');
+    const updated = this.mgr.renameItem(itemId, name);
+    if (!updated) throw new Error('Item not found');
+    return updated;
+  }
 }

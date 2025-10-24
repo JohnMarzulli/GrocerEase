@@ -92,3 +92,14 @@ export function useRemoveItem(listId: string) {
     }
   );
 }
+
+export function useRenameItem(listId: string) {
+  const api = useListsService();
+  const qc = useQueryClient();
+  return useMutation<ListItem, Error, { itemId: string; name: string }>(
+    {
+      mutationFn: ({ itemId, name }) => api.updateItemName(listId, itemId, name),
+      onSuccess: () => qc.invalidateQueries({ queryKey: ['list', listId] }),
+    }
+  );
+}

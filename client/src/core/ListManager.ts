@@ -89,13 +89,12 @@ export class ListManager {
         return it;
     }
 
-    rename(itemId: string, newItemId: string): void {
+    renameItem(itemId: string, newName: string): ListItem | undefined {
         const it = this.list.items.find(i => i.id === itemId);
         if (!it) return undefined;
-
-        it.id = newItemId;
-
+        it.name = (newName ?? '').trim() || it.name;
         this.save();
+        return it;
     }
 
     remove(itemId: string): void {

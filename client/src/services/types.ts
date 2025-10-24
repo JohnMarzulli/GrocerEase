@@ -28,4 +28,5 @@ export interface ListsService {
   incrementItem(listId: string, itemId: string, step?: number): Promise<ListItem | undefined>;
   decrementItem(listId: string, itemId: string, step?: number): Promise<ListItem | undefined>;
   removeItem(listId: string, itemId: string): Promise<void>;
+  updateItemName(listId: string, itemId: string, name: string): Promise<ListItem>;
 }

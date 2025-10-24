@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { useAddItem, useList, useCreateList, useIncrementItem, useDecrementItem, useRenameList } from '@/services/hooks';
+import { useAddItem, useList, useCreateList, useIncrementItem, useDecrementItem, useRenameList, useRenameItem } from '@/services/hooks';
 import { FormEvent, useEffect, useRef, useState } from 'react';
 import { getCookie, setCookie, LIST_COOKIE } from '@/utils/cookies';
 import { useToast } from '@/state/toast';
@@ -32,10 +32,13 @@ export default function ListEditor() {
   const addItem = useAddItem(id ?? '');
   const inc = useIncrementItem(id ?? '');
   const dec = useDecrementItem(id ?? '');
+  const renameItem = useRenameItem(id ?? '');
   const create = useCreateList();
   const { show } = useToast();
   const [text, setText] = useState('');
   const creatingRef = useRef(false);
+  const [editingItemId, setEditingItemId] = useState<string | null>(null);
+  const [editingItemText, setEditingItemText] = useState('');
 
   // Save loaded list id to cookie
   useEffect(() => {
@@ -168,7 +171,50 @@ export default function ListEditor() {
         <ul className="list">
           {list.items.map((i) => (
             <li key={i.id}>
-              <span style={{ textDecoration: i.status === 'completed' ? 'line-through' : 'none' }}>{i.name}</span>
+              {editingItemId === i.id ? (
+                <input
+                  className="input"
+                  style={{ background: 'transparent' }}
+                  autoFocus
+                  value={editingItemText}
+                  onChange={(e) => setEditingItemText(e.target.value)}
+                  onBlur={() => {
+                    const next = editingItemText.trim();
+                    if (next && next !== i.name) renameItem.mutate({ itemId: i.id, name: next });
+                    setEditingItemId(null);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') (e.target as HTMLInputElement).blur();
+                    if (e.key === 'Escape') setEditingItemId(null);
+                  }}
+                />
+              ) : (
+                (() => {
+                  let t: number | null = null;
+                  const start = () => {
+                    if (t) clearTimeout(t);
+                    t = window.setTimeout(() => {
+                      t = null;
+                      setEditingItemId(i.id);
+                      setEditingItemText(i.name);
+                    }, 500);
+                  };
+                  const cancel = () => { if (t) { clearTimeout(t); t = null; } };
+                  return (
+                    <span
+                      onPointerDown={start}
+                      onPointerUp={cancel}
+                      onPointerLeave={cancel}
+                      onPointerCancel={cancel}
+                      onContextMenu={(e) => e.preventDefault()}
+                      style={{ textDecoration: i.status === 'completed' ? 'line-through' : 'none', userSelect: 'none', cursor: 'default' }}
+                      title="Long-press to rename"
+                    >
+                      {i.name}
+                    </span>
+                  );
+                })()
+              )}
               <div style={{ display: 'flex', gap: 6, marginLeft: 'auto', alignItems: 'center' }}>
                 <span className="badge">{i.qty} {i.unit}</span>
                 <button className="home-btn" type="button" onClick={() => dec.mutate({ itemId: i.id })}>-</button>

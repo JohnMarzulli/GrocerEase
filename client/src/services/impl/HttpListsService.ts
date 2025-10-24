@@ -45,4 +45,8 @@ export class HttpListsService implements ListsService {
   async removeItem(listId: string, itemId: string): Promise<void> {
     await this.json(`${this.base}/list-items/${itemId}`, { method: 'DELETE', body: JSON.stringify({ listId }) });
   }
+
+  async updateItemName(listId: string, itemId: string, name: string): Promise<ListItem> {
+    return this.json(`${this.base}/list-items/${itemId}`, { method: 'PATCH', body: JSON.stringify({ op: 'rename', name, listId }) });
+  }
 }
