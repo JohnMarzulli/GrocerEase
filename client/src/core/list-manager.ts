@@ -1,36 +1,27 @@
-import { getCookie, setCookie, LIST_COOKIE } from '@/utils/cookies';
 import type { List, ListItem } from '@/services/types';
+import * as cookies from '@/utils/cookies';
 
 const STORAGE_KEY = 'ge_single_list';
+const LIST_COOKIE = 'ge_list_id';
 
 export class ListManager {
-    private list: List;
-
-    private constructor(list: List) {
-        this.list = list;
-    }
-
     static load(): ListManager {
-        // Try localStorage first
-        const raw = safeLocalStorageGet(STORAGE_KEY);
-        if (raw) {
-            const parsed = JSON.parse(raw) as List;
-            ensureCookie(parsed.id);
-            return new ListManager(parsed);
-        }
+        const idFromCookie = cookies.getCookie(LIST_COOKIE);
 
-        // Fallback: cookie id + storage by older key
-        const idFromCookie = getCookie(LIST_COOKIE);
         if (idFromCookie) {
             const oldRaw = safeLocalStorageGet(`ge_list_${idFromCookie}`);
             if (oldRaw) {
                 const parsed = JSON.parse(oldRaw) as List;
                 safeLocalStorageSet(STORAGE_KEY, oldRaw);
+
                 return new ListManager(parsed);
             }
         }
 
-        // Create a new list
+        return ListManager.createNewList();
+    }
+
+    private static createNewList(): ListManager {
         const id = crypto.randomUUID();
         const list: List = {
             id,
@@ -40,6 +31,7 @@ export class ListManager {
         };
         ensureCookie(id);
         safeLocalStorageSet(STORAGE_KEY, JSON.stringify(list));
+
         return new ListManager(list);
     }
 
@@ -106,11 +98,25 @@ export class ListManager {
         safeLocalStorageSet(STORAGE_KEY, JSON.stringify(this.list));
         ensureCookie(this.list.id);
     }
+
+    private constructor(list: List) {
+        this.list = list;
+    }
+
+    private list: List;
+}
+
+export function getListCookie(): string | null {
+    return cookies.getCookie(LIST_COOKIE);
+}
+
+export function saveListCookie(id: string) {
+    cookies.setCookie(LIST_COOKIE, id);
 }
 
 function ensureCookie(id: string) {
-    if (!getCookie(LIST_COOKIE)) {
-        setCookie(LIST_COOKIE, id);
+    if (!cookies.getCookie(LIST_COOKIE)) {
+        cookies.setCookie(LIST_COOKIE, id);
     }
 }
 
