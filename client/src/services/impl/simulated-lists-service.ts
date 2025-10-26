@@ -1,5 +1,5 @@
+import ListManager from '@/core/list-manager';
 import type { List, ListItem, ListSummary, ListsService } from '@/services/types';
-import ListManager from '@/core/ListManager';
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const latency = () => 200 + Math.random() * 600;
