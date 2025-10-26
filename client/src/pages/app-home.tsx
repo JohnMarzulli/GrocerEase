@@ -1,7 +1,8 @@
-import { useNavigate } from 'react-router-dom';
+import { getListCookie, saveListCookie } from '@/core/list-manager';
 import { useCreateList, useLists } from '@/services/hooks';
 import { useCallback } from 'react';
-import { getCookie, setCookie, LIST_COOKIE } from '@/utils/cookies';
+import { useNavigate } from 'react-router-dom';
+
 
 export default function Home() {
   const { data: lists } = useLists();
@@ -9,20 +10,20 @@ export default function Home() {
   const navigate = useNavigate();
 
   const goToList = useCallback(() => {
-    const fromCookie = getCookie(LIST_COOKIE);
+    const fromCookie = getListCookie();
     if (fromCookie) {
       navigate('/list');
       return;
     }
     const first = lists?.[0];
     if (first) {
-      setCookie(LIST_COOKIE, first.id);
+      saveListCookie(first.id);
       navigate('/list');
       return;
     }
     create.mutate('My List', {
       onSuccess: (l) => {
-        setCookie(LIST_COOKIE, l.id);
+        saveListCookie(l.id);
         navigate('/list');
       },
     });
