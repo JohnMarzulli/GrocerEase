@@ -357,8 +357,8 @@ export default function ListEditor() {
               )}
               <div style={{ display: 'flex', gap: 6, marginLeft: 'auto', alignItems: 'center' }}>
                 <span className="badge">{i.qty} {i.unit}</span>
-                <button className="home-btn" type="button" onClick={() => dec.mutate({ itemId: i.id })}>-</button>
-                <button className="home-btn" type="button" onClick={() => inc.mutate({ itemId: i.id })}>+</button>
+                <button className="interactive-btn" type="button" onClick={() => dec.mutate({ itemId: i.id })}>-</button>
+                <button className="interactive-btn" type="button" onClick={() => inc.mutate({ itemId: i.id })}>+</button>
               </div>
             </li>
           ))}
@@ -367,7 +367,7 @@ export default function ListEditor() {
 
       <div className="footer">
         <div className="footer-bar">
-          <Link className="home-btn" to="/">Home</Link>
+          <Link className="interactive-btn" to="/">Home</Link>
         </div>
       </div>
     </div>

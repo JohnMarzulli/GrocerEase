@@ -103,7 +103,7 @@ body {
 
 /* Floating preview clone while dragging */
 .dragging-floating {
-  box-shadow: 0 12px 32px rgba(0,0,0,0.45);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
   transform-origin: center top;
   border-radius: 8px;
   background: var(--card);
@@ -116,14 +116,16 @@ body {
 }
 
 .drag-handle {
-  width: 24px;
-  height: 24px;
+  width: 12px;
+  height: 100%;
   display: grid;
   grid-template: repeat(3, 1fr)/repeat(2, 1fr);
-  gap: 2px;
-  padding: 4px;
+  gap: 0%;
+  padding: 2px;
   cursor: grab;
-  touch-action: none
+  touch-action: none;
+  background: #17344f;
+  color: #e3f6f1;
 }
 
 .drag-handle::before {
@@ -167,16 +169,17 @@ body {
   justify-content: center
 }
 
-.home-btn {
+.interactive-btn {
   background: #17344f;
   color: #e3f6f1;
   border: 1px solid #24516f;
   border-radius: 25%;
   padding: 10px 16px;
-  font-weight: 600
+  font-weight: 600;
+  text-decoration: none;
 }
 
-.home-btn:active {
+.interactive-btn:active {
   transform: translateY(1px)
 }
 
