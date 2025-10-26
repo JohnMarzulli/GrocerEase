@@ -73,32 +73,7 @@ export default function ListEditor() {
 
   // Skeleton while loading or creating a new list
   if (!list) {
-    return (
-      <div className="mobile-shell">
-        <header className="header" style={{ textAlign: 'center', fontSize: 32 }}>
-          <div className="skel-line shimmer" style={{ width: '50%', height: 32, margin: '0 auto' }} />
-        </header>
-        <main className="content">
-          <div style={{ display: 'flex', gap: 8 }}>
-            <div className="skel-input shimmer" />
-            <div className="skel-chip shimmer" />
-          </div>
-          <ul className="list">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <li key={i}>
-                <div className="skel-line shimmer" style={{ width: '60%' }} />
-                <div className="skel-line shimmer" style={{ width: 48, height: 14, marginLeft: 'auto' }} />
-              </li>
-            ))}
-          </ul>
-        </main>
-        <div className="footer">
-          <div className="footer-bar">
-            <span className="skel-chip shimmer" />
-          </div>
-        </div>
-      </div>
-    );
+    return listLoadingSkeleton;
   }
 
   return (
@@ -118,41 +93,41 @@ export default function ListEditor() {
             }}
           />
         ) : (
-            <>
+          <>
             {(() => {
               let timer: number | null = null;
 
               const start = () => {
-              if (timer) window.clearTimeout(timer);
-              timer = window.setTimeout(() => {
-                timer = null;
-                setNameInput(list.name);
-                setEditingName(true);
-              }, 500);
+                if (timer) window.clearTimeout(timer);
+                timer = window.setTimeout(() => {
+                  timer = null;
+                  setNameInput(list.name);
+                  setEditingName(true);
+                }, 500);
               };
 
               const cancel = () => {
-              if (timer) {
-                window.clearTimeout(timer);
-                timer = null;
-              }
+                if (timer) {
+                  window.clearTimeout(timer);
+                  timer = null;
+                }
               };
 
               return (
-              <span
-                onPointerDown={start}
-                onPointerUp={cancel}
-                onPointerLeave={cancel}
-                onPointerCancel={cancel}
-                onContextMenu={(e) => e.preventDefault()}
-                style={{ userSelect: 'none', cursor: 'default' }}
-                title="Long-press to rename"
-              >
-                {list.name}
-              </span>
+                <span
+                  onPointerDown={start}
+                  onPointerUp={cancel}
+                  onPointerLeave={cancel}
+                  onPointerCancel={cancel}
+                  onContextMenu={(e) => e.preventDefault()}
+                  style={{ userSelect: 'none', cursor: 'default' }}
+                  title="Long-press to rename"
+                >
+                  {list.name}
+                </span>
               );
             })()}
-            </>
+          </>
         )}
       </header>
       <main className="content">
@@ -233,3 +208,30 @@ export default function ListEditor() {
     </div>
   );
 }
+
+const listLoadingSkeleton = (
+  <div className="mobile-shell">
+    <header className="header" style={{ textAlign: 'center', fontSize: 32 }}>
+      <div className="skel-line shimmer" style={{ width: '50%', height: 32, margin: '0 auto' }} />
+    </header>
+    <main className="content">
+      <div style={{ display: 'flex', gap: 8 }}>
+        <div className="skel-input shimmer" />
+        <div className="skel-chip shimmer" />
+      </div>
+      <ul className="list">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <li key={i}>
+            <div className="skel-line shimmer" style={{ width: '60%' }} />
+            <div className="skel-line shimmer" style={{ width: 48, height: 14, marginLeft: 'auto' }} />
+          </li>
+        ))}
+      </ul>
+    </main>
+    <div className="footer">
+      <div className="footer-bar">
+        <span className="skel-chip shimmer" />
+      </div>
+    </div>
+  </div>
+);

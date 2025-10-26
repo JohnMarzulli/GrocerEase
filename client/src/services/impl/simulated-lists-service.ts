@@ -50,7 +50,7 @@ export class SimulatedListsService implements ListsService {
   async updateListName(listId: string, name: string): Promise<List> {
     const l = this.mgr.getList();
     if (listId && listId !== l.id) throw new Error('List not found');
-    this.mgr.setName(name);
+    this.mgr.setListName(name);
     return this.mgr.getList();
   }
 
