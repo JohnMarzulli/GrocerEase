@@ -1,4 +1,4 @@
-import Home from '@/pages/home';
+import Home from '@/pages/app-home';
 import ListEditor from '@/pages/list-editor';
 import { Navigate, Route, Routes } from 'react-router-dom';
 
