@@ -1,11 +1,11 @@
-import { Link } from 'react-router-dom';
-import { useAddItem, useList, useCreateList, useIncrementItem, useDecrementItem, useRenameList, useRenameItem } from '@/services/hooks';
-import { FormEvent, useEffect, useRef, useState } from 'react';
-import { getCookie, setCookie, LIST_COOKIE } from '@/utils/cookies';
+import { getListCookie, saveListCookie } from '@/core/list-manager';
+import { useAddItem, useCreateList, useDecrementItem, useIncrementItem, useList, useRenameItem, useRenameList } from '@/services/hooks';
 import { useToast } from '@/state/toast';
+import { FormEvent, useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 
 export default function ListEditor() {
-  const [id, setId] = useState<string | undefined>(() => getCookie(LIST_COOKIE) || undefined);
+  const [id, setId] = useState<string | undefined>(() => getListCookie() || undefined);
   const { data: _list, isLoading, error } = useList(id, { enabled: !!id });
 
   const [editingName, setEditingName] = useState(false);
@@ -43,7 +43,7 @@ export default function ListEditor() {
   // Save loaded list id to cookie
   useEffect(() => {
     if (list?.id) {
-      setCookie(LIST_COOKIE, list.id);
+      saveListCookie(list.id);
     }
   }, [list?.id]);
 
@@ -53,7 +53,7 @@ export default function ListEditor() {
       creatingRef.current = true;
       create.mutate('Grocery List', {
         onSuccess: (l) => {
-          setCookie(LIST_COOKIE, l.id);
+          saveListCookie(l.id);
           show('New list created');
           setId(l.id);
         },
