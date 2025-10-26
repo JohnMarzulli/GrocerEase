@@ -1,7 +1,7 @@
 import { getListCookie, saveListCookie } from '@/core/list-manager';
 import { useAddItem, useCreateList, useDecrementItem, useIncrementItem, useList, useMoveItem, useRenameItem, useRenameList } from '@/services/hooks';
 import { useToast } from '@/state/toast';
-import { FormEvent, useEffect, useRef, useState } from 'react';
+import { FormEvent, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 export default function ListEditor() {
@@ -47,6 +47,42 @@ export default function ListEditor() {
   const [dragStartY, setDragStartY] = useState(0);
   const [dragCurrentY, setDragCurrentY] = useState(0);
   const moveItem = useMoveItem(id ?? '');
+  const listRef = useRef<HTMLUListElement | null>(null);
+  const positionsRef = useRef<Map<string, DOMRect>>(new Map());
+  const floatingRef = useRef<HTMLElement | null>(null);
+  const dragOffsetRef = useRef<number>(0);
+
+  const startDrag = (e: any, itemId: string) => {
+    e.preventDefault();
+    setDraggingId(itemId);
+    setDragStartY(e.clientY ?? 0);
+    setDragCurrentY(e.clientY ?? 0);
+
+    const ul = listRef.current;
+    const li = ul?.querySelector(`li[data-item-id="${itemId}"]`) as HTMLElement | null;
+    if (!li) return;
+    const rect = li.getBoundingClientRect();
+    dragOffsetRef.current = (e.clientY ?? 0) - rect.top;
+
+    // clone the node to create a floating preview
+    const clone = li.cloneNode(true) as HTMLElement;
+    clone.style.position = 'fixed';
+    clone.style.left = `${rect.left}px`;
+    clone.style.top = `${rect.top}px`;
+    clone.style.width = `${rect.width}px`;
+    clone.style.boxSizing = 'border-box';
+    clone.style.margin = '0';
+    clone.style.pointerEvents = 'none';
+    clone.style.zIndex = '9999';
+    clone.classList.add('dragging-floating');
+    document.body.appendChild(clone);
+    floatingRef.current = clone;
+
+    // hide original while floating exists so FLIP animates the gap
+    li.style.visibility = 'hidden';
+    // try pointer capture if available on target
+    try { (e.target as Element).setPointerCapture?.(e.pointerId); } catch { }
+  };
 
   // Handle drag and drop (track pointer, highlight target, commit on pointer up)
   useEffect(() => {
@@ -57,6 +93,15 @@ export default function ListEditor() {
       const { items } = list;
       const draggingItem = items.find(i => i.id === draggingId);
       if (!draggingItem) return;
+
+      // move floating preview if present
+      const floatEl = floatingRef.current;
+      if (floatEl) {
+        const x = floatEl.getBoundingClientRect().left;
+        const top = (e.clientY ?? 0) - dragOffsetRef.current;
+        floatEl.style.transform = `translateY(${top - floatEl.getBoundingClientRect().top}px)`;
+        floatEl.style.top = `${top}px`;
+      }
 
       // Find potential target by Y position
       const targetEl = document.elementFromPoint(e.clientX, e.clientY)?.closest('li');
@@ -69,9 +114,20 @@ export default function ListEditor() {
           }
         }
       }
+      setDragCurrentY(e.clientY ?? 0);
     };
 
-    const handleUp = () => {
+    const handleUp = (ev?: PointerEvent) => {
+      // remove floating preview and restore original visibility
+      const floatEl = floatingRef.current;
+      if (floatEl) {
+        const ul = listRef.current;
+        const original = ul?.querySelector(`li[data-item-id="${draggingId}"]`) as HTMLElement | null;
+        original && (original.style.visibility = 'visible');
+        floatEl.remove();
+        floatingRef.current = null;
+      }
+
       if (dragTargetId && draggingId) {
         const items = list?.items ?? [];
         const fromIdx = items.findIndex(i => i.id === draggingId);
@@ -91,6 +147,51 @@ export default function ListEditor() {
       document.removeEventListener('pointerup', handleUp);
     };
   }, [draggingId, dragTargetId, list, moveItem]);
+
+  // FLIP animation: measure positions and animate differences when list.items changes
+  useLayoutEffect(() => {
+    const ul = listRef.current;
+    if (!ul) return;
+
+    const newPositions = new Map<string, DOMRect>();
+    ul.querySelectorAll('li').forEach((el) => {
+      const id = el.getAttribute('data-item-id');
+      if (!id) return;
+      newPositions.set(id, (el as HTMLElement).getBoundingClientRect());
+    });
+
+    const prev = positionsRef.current;
+    if (prev.size) {
+      newPositions.forEach((newRect, id) => {
+        const prevRect = prev.get(id);
+        if (!prevRect) return;
+        const deltaY = prevRect.top - newRect.top;
+        if (deltaY) {
+          const li = ul.querySelector(`li[data-item-id="${id}"]`) as HTMLElement | null;
+          if (!li) return;
+          // Invert
+          li.style.transition = 'none';
+          li.style.transform = `translateY(${deltaY}px)`;
+          // Play
+          requestAnimationFrame(() => {
+            li.style.transition = 'transform 220ms cubic-bezier(.2,.9,.2,1)';
+            li.style.transform = '';
+          });
+          const cleanup = () => {
+            if (li) {
+              li.style.transition = '';
+              li.style.transform = '';
+            }
+            li?.removeEventListener('transitionend', cleanup);
+          };
+          li.addEventListener('transitionend', cleanup);
+        }
+      });
+    }
+
+    // Save positions for next round
+    positionsRef.current = newPositions;
+  }, [list?.items]);
 
   // Save loaded list id to cookie
   useEffect(() => {
@@ -195,7 +296,7 @@ export default function ListEditor() {
           </button>
         </form>
 
-        <ul className="list">
+        <ul className="list" ref={listRef}>
           {list.items.map((i) => (
             <li
               key={i.id}
@@ -204,10 +305,7 @@ export default function ListEditor() {
             >
               <div
                 className="drag-handle"
-                onPointerDown={(e) => {
-                  e.preventDefault();
-                  setDraggingId(i.id);
-                }}
+                onPointerDown={(e) => startDrag(e, i.id)}
               >
                 {[...Array(6)].map((_, idx) => (
                   <i key={idx} />

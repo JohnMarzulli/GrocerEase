@@ -96,6 +96,20 @@ body {
   position: relative
 }
 
+/* Hint to the browser that we'll animate transforms for smoother FLIP */
+.list li {
+  will-change: transform;
+}
+
+/* Floating preview clone while dragging */
+.dragging-floating {
+  box-shadow: 0 12px 32px rgba(0,0,0,0.45);
+  transform-origin: center top;
+  border-radius: 8px;
+  background: var(--card);
+  opacity: 0.98;
+}
+
 .badge {
   margin-left: auto;
   color: var(--muted)
