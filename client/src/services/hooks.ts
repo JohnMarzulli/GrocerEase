@@ -103,3 +103,14 @@ export function useRenameItem(listId: string) {
     }
   );
 }
+
+export function useMoveItem(listId: string) {
+  const api = useListsService();
+  const qc = useQueryClient();
+  return useMutation<ListItem, Error, { itemId: string; newOrder: number }>(
+    {
+      mutationFn: ({ itemId, newOrder }) => api.moveItem(listId, itemId, newOrder),
+      onSuccess: () => qc.invalidateQueries({ queryKey: ['list', listId] }),
+    }
+  );
+}

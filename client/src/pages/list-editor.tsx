@@ -1,5 +1,5 @@
 import { getListCookie, saveListCookie } from '@/core/list-manager';
-import { useAddItem, useCreateList, useDecrementItem, useIncrementItem, useList, useRenameItem, useRenameList } from '@/services/hooks';
+import { useAddItem, useCreateList, useDecrementItem, useIncrementItem, useList, useRenameItem, useRenameList, useMoveItem } from '@/services/hooks';
 import { useToast } from '@/state/toast';
 import { FormEvent, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -11,6 +11,7 @@ export default function ListEditor() {
   const [editingName, setEditingName] = useState(false);
   const [nameInput, setNameInput] = useState('');
   const nameInputRef = useRef<HTMLInputElement | null>(null);
+
 
   useEffect(() => {
     if (editingName && nameInputRef.current) {
@@ -39,6 +40,57 @@ export default function ListEditor() {
   const creatingRef = useRef(false);
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
   const [editingItemText, setEditingItemText] = useState('');
+
+  // Drag state
+  const [draggingId, setDraggingId] = useState<string | null>(null);
+  const [dragTargetId, setDragTargetId] = useState<string | null>(null);
+  const [dragStartY, setDragStartY] = useState(0);
+  const [dragCurrentY, setDragCurrentY] = useState(0);
+  const moveItem = useMoveItem(id ?? '');
+
+  // Handle drag and drop (track pointer, highlight target, commit on pointer up)
+  useEffect(() => {
+    if (!draggingId) return;
+
+    const handleMove = (e: PointerEvent) => {
+      if (!list) return;
+  const { items } = list;
+      const draggingItem = items.find(i => i.id === draggingId);
+      if (!draggingItem) return;
+
+      // Find potential target by Y position
+      const targetEl = document.elementFromPoint(e.clientX, e.clientY)?.closest('li');
+      if (targetEl) {
+        const targetId = targetEl.getAttribute('data-item-id');
+        if (targetId && targetId !== draggingId) {
+          const targetItem = items.find(i => i.id === targetId);
+          if (targetItem) {
+            setDragTargetId(targetId);
+          }
+        }
+      }
+    };
+
+    const handleUp = () => {
+      if (dragTargetId && draggingId) {
+  const items = list?.items ?? [];
+        const fromIdx = items.findIndex(i => i.id === draggingId);
+        const toIdx = items.findIndex(i => i.id === dragTargetId);
+        if (fromIdx !== -1 && toIdx !== -1) {
+          moveItem.mutate({ itemId: draggingId, newOrder: items[toIdx].order });
+        }
+      }
+      setDraggingId(null);
+      setDragTargetId(null);
+    };
+
+    document.addEventListener('pointermove', handleMove);
+    document.addEventListener('pointerup', handleUp);
+    return () => {
+      document.removeEventListener('pointermove', handleMove);
+      document.removeEventListener('pointerup', handleUp);
+    };
+  }, [draggingId, dragTargetId, list, moveItem]);
 
   // Save loaded list id to cookie
   useEffect(() => {
@@ -145,7 +197,22 @@ export default function ListEditor() {
 
         <ul className="list">
           {list.items.map((i) => (
-            <li key={i.id}>
+              <li
+                key={i.id}
+                data-item-id={i.id}
+                className={`${draggingId === i.id ? 'dragging' : ''} ${dragTargetId === i.id ? 'drag-target' : ''}`}
+              >
+                <div
+                  className="drag-handle"
+                  onPointerDown={(e) => {
+                    e.preventDefault();
+                    setDraggingId(i.id);
+                  }}
+                >
+                  {[...Array(6)].map((_, idx) => (
+                    <i key={idx} />
+                  ))}
+                </div>
               {editingItemId === i.id ? (
                 <input
                   className="input"

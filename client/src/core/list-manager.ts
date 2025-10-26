@@ -63,14 +63,19 @@ export class ListManager {
             return this.increment(existingItem.id, qty);
         }
 
+        // Find max order and add 1, or use 0 if no items
+        const maxOrder = this.list.items.reduce((max, item) => Math.max(max, item.order), -1);
+        
         const item: ListItem = {
             id: crypto.randomUUID(),
             name: name.trim(),
             qty: Math.max(1, Number(qty) || 1),
             unit: unit || 'ea',
             status: 'pending',
+            order: maxOrder + 1
         };
         this.list.items.unshift(item);
+        this.sortItems();
         this.save();
 
         return item;
@@ -146,6 +151,41 @@ export class ListManager {
         return this.list.items.find(i => i.id === id);
     }
 
+    public moveItem(itemId: string, newOrder: number): ListItem {
+        const item = this.findItemById(itemId);
+        if (!item) throw new Error('Item not found');
+
+        const oldOrder = item.order;
+        
+        if (newOrder === oldOrder) return item;
+
+        // Update orders of items between old and new positions
+        if (newOrder > oldOrder) {
+            // Moving down - decrement items in between
+            this.list.items.forEach(i => {
+                if (i.order > oldOrder && i.order <= newOrder) {
+                    i.order--;
+                }
+            });
+        } else {
+            // Moving up - increment items in between
+            this.list.items.forEach(i => {
+                if (i.order >= newOrder && i.order < oldOrder) {
+                    i.order++;
+                }
+            });
+        }
+
+        item.order = newOrder;
+        this.sortItems();
+        this.save();
+        return item;
+    }
+
+    private sortItems(): void {
+        this.list.items.sort((a, b) => a.order - b.order);
+    }
+
     private static createNewList(): ListManager {
         const id = crypto.randomUUID();
         const list: List = {
@@ -161,6 +201,12 @@ export class ListManager {
     }
 
     private constructor(list: List) {
+        // Ensure all items have an order
+        list.items.forEach((item, index) => {
+            if (item.order === undefined) {
+                item.order = index;
+            }
+        });
         this.list = list;
     }
 

@@ -79,4 +79,10 @@ export class SimulatedListsService implements ListsService {
     if (!updated) throw new Error('Item not found');
     return updated;
   }
+
+  async moveItem(listId: string, itemId: string, newOrder: number): Promise<ListItem> {
+    const l = this.mgr.getList();
+    if (listId && listId !== l.id) throw new Error('List not found');
+    return this.mgr.moveItem(itemId, newOrder);
+  }
 }

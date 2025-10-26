@@ -8,8 +8,8 @@ const seedLists: List[] = [
     name: 'Weekly Groceries',
     createdAt: nowIso(),
     items: [
-      { id: 'i-1', name: 'Bananas', qty: 6, unit: 'ea', status: 'pending' },
-      { id: 'i-2', name: 'Milk', qty: 1, unit: 'gal', status: 'completed' },
+      { id: 'i-1', name: 'Bananas', qty: 6, unit: 'ea', status: 'pending', order: 0 },
+      { id: 'i-2', name: 'Milk', qty: 1, unit: 'gal', status: 'completed', order: 1 },
     ],
   },
   {
@@ -17,7 +17,7 @@ const seedLists: List[] = [
     name: 'Party Supplies',
     createdAt: nowIso(),
     items: [
-      { id: 'i-3', name: 'Chips', qty: 3, unit: 'bag', status: 'pending' },
+      { id: 'i-3', name: 'Chips', qty: 3, unit: 'bag', status: 'pending', order: 0 },
     ],
   },
 ];
@@ -46,7 +46,15 @@ export class MockListsService implements ListsService {
   async addItem(listId: string, name: string, qty = 1, unit = 'ea'): Promise<ListItem> {
     const list = this.lists.get(listId);
     if (!list) throw new Error('List not found');
-    const item: ListItem = { id: `i-${Math.random().toString(36).slice(2, 9)}`, name, qty, unit, status: 'pending' };
+    const maxOrder = list.items.reduce((max, i) => Math.max(max, i.order), -1);
+    const item: ListItem = { 
+      id: `i-${Math.random().toString(36).slice(2, 9)}`, 
+      name, 
+      qty, 
+      unit, 
+      status: 'pending',
+      order: maxOrder + 1
+    };
     list.items.unshift(item);
     return item;
   }
@@ -102,5 +110,33 @@ export class MockListsService implements ListsService {
     if (!it) throw new Error('Item not found');
     it.name = name.trim() || it.name;
     return it;
+  }
+
+  async moveItem(listId: string, itemId: string, newOrder: number): Promise<ListItem> {
+    const list = this.lists.get(listId);
+    if (!list) throw new Error('List not found');
+    const item = list.items.find(i => i.id === itemId);
+    if (!item) throw new Error('Item not found');
+    
+    const oldOrder = item.order ?? list.items.indexOf(item);
+    if (newOrder === oldOrder) return item;
+
+    // Update orders
+    list.items.forEach(i => {
+      const iOrder = i.order ?? list.items.indexOf(i);
+      if (newOrder > oldOrder) {
+        if (iOrder > oldOrder && iOrder <= newOrder) {
+          i.order = iOrder - 1;
+        }
+      } else {
+        if (iOrder >= newOrder && iOrder < oldOrder) {
+          i.order = iOrder + 1;
+        }
+      }
+    });
+
+    item.order = newOrder;
+    list.items.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+    return item;
   }
 }
