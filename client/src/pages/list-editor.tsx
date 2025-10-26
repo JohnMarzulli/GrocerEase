@@ -1,5 +1,5 @@
 import { getListCookie, saveListCookie } from '@/core/list-manager';
-import { useAddItem, useCreateList, useDecrementItem, useIncrementItem, useList, useRenameItem, useRenameList, useMoveItem } from '@/services/hooks';
+import { useAddItem, useCreateList, useDecrementItem, useIncrementItem, useList, useMoveItem, useRenameItem, useRenameList } from '@/services/hooks';
 import { useToast } from '@/state/toast';
 import { FormEvent, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -54,7 +54,7 @@ export default function ListEditor() {
 
     const handleMove = (e: PointerEvent) => {
       if (!list) return;
-  const { items } = list;
+      const { items } = list;
       const draggingItem = items.find(i => i.id === draggingId);
       if (!draggingItem) return;
 
@@ -73,7 +73,7 @@ export default function ListEditor() {
 
     const handleUp = () => {
       if (dragTargetId && draggingId) {
-  const items = list?.items ?? [];
+        const items = list?.items ?? [];
         const fromIdx = items.findIndex(i => i.id === draggingId);
         const toIdx = items.findIndex(i => i.id === dragTargetId);
         if (fromIdx !== -1 && toIdx !== -1) {
@@ -197,22 +197,22 @@ export default function ListEditor() {
 
         <ul className="list">
           {list.items.map((i) => (
-              <li
-                key={i.id}
-                data-item-id={i.id}
-                className={`${draggingId === i.id ? 'dragging' : ''} ${dragTargetId === i.id ? 'drag-target' : ''}`}
+            <li
+              key={i.id}
+              data-item-id={i.id}
+              className={`${draggingId === i.id ? 'dragging' : ''} ${dragTargetId === i.id ? 'drag-target' : ''}`}
+            >
+              <div
+                className="drag-handle"
+                onPointerDown={(e) => {
+                  e.preventDefault();
+                  setDraggingId(i.id);
+                }}
               >
-                <div
-                  className="drag-handle"
-                  onPointerDown={(e) => {
-                    e.preventDefault();
-                    setDraggingId(i.id);
-                  }}
-                >
-                  {[...Array(6)].map((_, idx) => (
-                    <i key={idx} />
-                  ))}
-                </div>
+                {[...Array(6)].map((_, idx) => (
+                  <i key={idx} />
+                ))}
+              </div>
               {editingItemId === i.id ? (
                 <input
                   className="input"

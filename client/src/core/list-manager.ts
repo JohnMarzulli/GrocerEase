@@ -65,7 +65,7 @@ export class ListManager {
 
         // Find max order and add 1, or use 0 if no items
         const maxOrder = this.list.items.reduce((max, item) => Math.max(max, item.order), -1);
-        
+
         const item: ListItem = {
             id: crypto.randomUUID(),
             name: name.trim(),
@@ -156,7 +156,7 @@ export class ListManager {
         if (!item) throw new Error('Item not found');
 
         const oldOrder = item.order;
-        
+
         if (newOrder === oldOrder) return item;
 
         // Update orders of items between old and new positions
