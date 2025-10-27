@@ -32,6 +32,19 @@ export class GoceryListManager {
     }
 
     /**
+     * Is the given list Id available?
+     * @param id The uuid of the list to check.
+     * @returns True if the list is available.
+     */
+    public isListAvailable(
+        id: string
+    ): boolean {
+        const availableLists: string[] = this.getAvailableListIds();
+
+        return availableLists.includes(id);
+    }
+
+    /**
      * Creates a new grocery list.
      * This new list will be saved automatically.
      * @returns A new gocert list.
