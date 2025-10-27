@@ -1,13 +1,13 @@
-import 'reflect-metadata';
-import './styles.css';
+import '@/di/container';
+import { queryClient } from '@/state/queryClient';
+import { ToastProvider } from '@/state/toast';
+import { QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
-import { QueryClientProvider } from '@tanstack/react-query';
-import App from './App';
-import { queryClient } from '@/state/queryClient';
-import '@/di/container';
-import { ToastProvider } from '@/state/toast';
+import 'reflect-metadata';
+import './styles.css';
+import App from './web-app';
 
 const root = document.getElementById('root')!;
 

@@ -6,6 +6,7 @@ export interface ListItem {
   qty: number;
   unit: string;
   status: ListItemStatus;
+  order: number;
 }
 
 export interface ListSummary {
@@ -29,4 +30,5 @@ export interface ListsService {
   decrementItem(listId: string, itemId: string, step?: number): Promise<ListItem | undefined>;
   removeItem(listId: string, itemId: string): Promise<void>;
   updateItemName(listId: string, itemId: string, name: string): Promise<ListItem>;
+  moveItem(listId: string, itemId: string, newOrder: number): Promise<ListItem>;
 }

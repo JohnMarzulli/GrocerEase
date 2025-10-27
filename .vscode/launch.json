@@ -24,7 +24,20 @@
             "type": "chrome",
             "request": "launch",
             "url": "http://localhost:5173",
-            "webRoot": "${workspaceFolder}/client"
+            "webRoot": "${workspaceFolder}/client",
+            "sourceMapPathOverrides": {
+                "webpack:///src/*": "${webRoot}/src/*",
+                "webpack:///./*": "${webRoot}/*",
+                "webpack:///./src/*": "${webRoot}/src/*",
+                "webpack:///*": "${webRoot}/*",
+                "vite:///src/*": "${webRoot}/src/*",
+                "vite:///*": "${webRoot}/*",
+                "http://localhost:5173/src/*": "${webRoot}/src/*",
+                "http://localhost:5173/*": "${webRoot}/*",
+                "/@fs/*": "${webRoot}/*",
+                "/src/*": "${webRoot}/src/*",
+                "*": "${webRoot}/*"
+            }
         }
     ],
     "compounds": [

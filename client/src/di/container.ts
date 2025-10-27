@@ -1,10 +1,10 @@
+import { HttpListsService } from '@/services/impl/http-lists-service';
+import { MockListsService } from '@/services/impl/mock-lists-service';
+import { SimulatedListsService } from '@/services/impl/simulated-lists-service';
+import type { ListsService } from '@/services/types';
 import 'reflect-metadata';
 import { container } from 'tsyringe';
 import { TOKENS } from './tokens';
-import type { ListsService } from '@/services/types';
-import { MockListsService } from '@/services/impl/MockListsService';
-import { SimulatedListsService } from '@/services/impl/SimulatedListsService';
-import { HttpListsService } from '@/services/impl/HttpListsService';
 
 const mode = (import.meta as any).env?.VITE_API_MODE || 'sim';
 
@@ -21,3 +21,4 @@ if (mode === 'mock') {
 container.registerSingleton<ListsService>(TOKENS.ListsService, listsImpl);
 
 export { container };
+
