@@ -1,14 +1,21 @@
+import { GoceryListManager } from '@/core/gocery-list-manager';
 import { useCreateList, useLists } from '@/services/hooks';
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+/**
+ * The home page handler.
+ * @returns the HTML to render.
+ */
 export default function Home() {
   const { data: lists } = useLists();
   const create = useCreateList();
   const navigate = useNavigate();
 
   const goToList = useCallback(() => {
-    navigate('/list');
+    const groceryListManager = new GoceryListManager();
+    const defaultListId: string = groceryListManager.getDefaultListId();
+    navigate(`/list?id=${defaultListId}`);
   }, [lists, create, navigate]);
 
   return (

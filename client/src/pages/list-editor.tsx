@@ -1,11 +1,38 @@
-import { getListCookie, saveListCookie } from '@/core/list-manager';
-import { useAddItem, useCreateList, useDecrementItem, useIncrementItem, useList, useMoveItem, useRenameItem, useRenameList } from '@/services/hooks';
+import { GoceryListManager } from '@/core/gocery-list-manager';
+import { useAddItem, useDecrementItem, useIncrementItem, useList, useMoveItem, useRenameItem, useRenameList } from '@/services/hooks';
 import { useToast } from '@/state/toast';
 import { FormEvent, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 
+const groceryListManager = new GoceryListManager();
+
+function getValidListId(): string {
+  const defaultListId: string = groceryListManager.getDefaultListId();
+
+  try {
+    const qs = new URLSearchParams(window.location.search);
+    const id = qs.get('id') || defaultListId;
+
+    // $TODO - Should we navigate or update the url to the id that is being shown?
+    return groceryListManager.isListAvailable(id)
+      ? id
+      : defaultListId;
+  } catch {
+    return defaultListId;
+  }
+}
+
 export default function ListEditor() {
-  const [id, setId] = useState<string | undefined>(() => getListCookie() || undefined);
+  // Extract GUID from the query string as listId
+  const listId: string = getValidListId();
+
+  // Resolve the actual list id via the manager using the guid
+  const [id, setId] = useState<string>('');
+  useEffect(() => {
+    //const resolvedId = groceryListManager.getList(listId);
+    setId(listId);
+  }, [listId]);
+
   const { data: _list, isLoading, error } = useList(id, { enabled: !!id });
 
   const [editingName, setEditingName] = useState(false);
@@ -34,7 +61,6 @@ export default function ListEditor() {
   const inc = useIncrementItem(id ?? '');
   const dec = useDecrementItem(id ?? '');
   const renameItem = useRenameItem(id ?? '');
-  const create = useCreateList();
   const { show } = useToast();
   const [text, setText] = useState('');
   const creatingRef = useRef(false);
@@ -192,30 +218,6 @@ export default function ListEditor() {
     // Save positions for next round
     positionsRef.current = newPositions;
   }, [list?.items]);
-
-  // Save loaded list id to cookie
-  useEffect(() => {
-    if (list?.id) {
-      saveListCookie(list.id);
-    }
-  }, [list?.id]);
-
-  // If list fetch fails (e.g., not found), create a new one and use it
-  useEffect(() => {
-    if (error && !creatingRef.current) {
-      creatingRef.current = true;
-      create.mutate('Grocery List', {
-        onSuccess: (l) => {
-          saveListCookie(l.id);
-          show('New list created');
-          setId(l.id);
-        },
-        onError: () => {
-          creatingRef.current = false;
-        },
-      });
-    }
-  }, [error, create, show]);
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
