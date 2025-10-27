@@ -65,7 +65,7 @@ body {
 .danger-tile {
   background: #17344f;
   color: #df0c0c;
-  border: 1px solid #df0c0c;
+  border: 10px solid #df0c0c;
   border-radius: 100%;
   display: flex;
   align-items: center;
@@ -99,6 +99,16 @@ body {
   list-style: none;
   margin: 8px 0 0;
   padding: 0
+}
+
+.list-scroll {
+  scrollbar-width: thin;
+  background: #000;
+  border-radius: 2%;
+  padding-top: 2%;
+  padding-bottom: 2%;
+  padding-left: 2%;
+  padding-right: 2%;
 }
 
 .list li {
