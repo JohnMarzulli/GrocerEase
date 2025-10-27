@@ -1,33 +1,7 @@
-import { GoceryListManager } from '@/core/gocery-list-manager';
-import GroceryList from '@/core/grocery-list';
+import { getListItemCount, getListName, groceryListManager } from '@/core/gocery-list-manager';
 import { useCreateList, useLists } from '@/services/hooks';
 import { useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-
-const groceryListManager = new GoceryListManager();
-
-function getListName(
-  listId: string,
-) {
-  if (!groceryListManager.isListAvailable(listId)) {
-    return `Grocery List (New)`;
-  }
-
-  const list: GroceryList = groceryListManager.getList(listId);
-  return list.getListName();
-}
-
-function getListItemCount(
-  listId: string,
-) {
-  if (!groceryListManager.isListAvailable(listId)) {
-    return 0;
-  }
-
-  const list: GroceryList = groceryListManager.getList(listId);
-
-  return list.getList().items.length;
-}
 
 /**
  * Allows the user to select a list to edit, or to create a new one.

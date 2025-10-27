@@ -120,4 +120,27 @@ export function getValidListIdFromQueryParams(): string {
     }
 }
 
+export function getListName(
+    listId: string,
+) {
+    if (!groceryListManager.isListAvailable(listId)) {
+        return `Grocery List (New)`;
+    }
+
+    const list: GroceryList = groceryListManager.getList(listId);
+    return list.getListName();
+}
+
+export function getListItemCount(
+    listId: string,
+) {
+    if (!groceryListManager.isListAvailable(listId)) {
+        return 0;
+    }
+
+    const list: GroceryList = groceryListManager.getList(listId);
+
+    return list.getList().items.length;
+}
+
 export const groceryListManager = new GoceryListManager();
