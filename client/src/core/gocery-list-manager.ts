@@ -49,15 +49,26 @@ export class GoceryListManager {
      * This new list will be saved automatically.
      * @returns A new gocert list.
      */
-    public createNewList(
-        source: string
-    ): GroceryList {
+    public createNewList(): GroceryList {
         const list: GroceryList = GroceryList.load(crypto.randomUUID());
-
-        // $TODO - Remove this once debugged
-        list.setListName(`Loaded from ${source}`);
+        list.setListName(`New List`);
 
         return list;
+    }
+
+    /**
+     * Removes a list from storage.
+     * @param id The uuid of the list to remove.
+     */
+    public removeList(
+        id: string
+    ): void {
+        try {
+            localStorage.removeItem(id);
+        }
+        catch {
+            // ignore
+        }
     }
 
     /**
@@ -73,7 +84,7 @@ export class GoceryListManager {
             return availableLists[0];
         }
 
-        return this.createNewList('getDefaultListId').getList().id;
+        return this.createNewList().getList().id;
     }
 }
 
@@ -82,7 +93,7 @@ export class GoceryListManager {
  * @param value The text to see if it is a valid UUID.
  * @returns True if the text is a valid UUID.
  */
-function isUuid(value: string): boolean {
+export function isUuid(value: string): boolean {
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
     return uuidRegex.test(value);

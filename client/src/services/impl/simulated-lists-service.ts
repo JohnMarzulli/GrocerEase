@@ -6,11 +6,12 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const latency = () => 200 + Math.random() * 600;
 
 export class SimulatedListsService implements ListsService {
+  private groceryManager = new GoceryListManager();
   private groceryList: GroceryList;
 
+
   constructor() {
-    const groceryManager = new GoceryListManager();
-    const defaultListId = groceryManager.getDefaultListId();
+    const defaultListId = this.groceryManager.getDefaultListId();
     this.groceryList = GroceryList.load(defaultListId);
   }
 
@@ -26,11 +27,14 @@ export class SimulatedListsService implements ListsService {
     return { id: l.id, name: l.name, createdAt: l.createdAt };
   }
 
-  async getList(id: string): Promise<List> {
+  async getList(
+    listId: string
+  ): Promise<List> {
     await sleep(latency());
-    const l = this.groceryList.getList();
-    if (id && id !== l.id) throw new Error('List not found');
-    return l;
+    this.groceryList = GroceryList.load(listId);
+    const list = this.groceryList.getList();
+
+    return list;
   }
 
   async addItem(listId: string, name: string, qty = 1, unit = 'ea'): Promise<ListItem> {

@@ -1,4 +1,4 @@
-import { GoceryListManager } from '@/core/gocery-list-manager';
+import { GoceryListManager, isUuid } from '@/core/gocery-list-manager';
 import { useAddItem, useDecrementItem, useIncrementItem, useList, useMoveItem, useRenameItem, useRenameList } from '@/services/hooks';
 import { useToast } from '@/state/toast';
 import { FormEvent, useEffect, useLayoutEffect, useRef, useState } from 'react';
@@ -13,10 +13,11 @@ function getValidListId(): string {
     const qs = new URLSearchParams(window.location.search);
     const id = qs.get('id') || defaultListId;
 
-    // $TODO - Should we navigate or update the url to the id that is being shown?
-    return groceryListManager.isListAvailable(id)
-      ? id
-      : defaultListId;
+    if (!isUuid(id)) {
+      return defaultListId;
+    }
+
+    return id;
   } catch {
     return defaultListId;
   }
@@ -29,8 +30,9 @@ export default function ListEditor() {
   // Resolve the actual list id via the manager using the guid
   const [id, setId] = useState<string>('');
   useEffect(() => {
-    //const resolvedId = groceryListManager.getList(listId);
-    setId(listId);
+    const list = groceryListManager.getList(listId);
+    // use the resolved/created list id so data fetching works for new lists
+    setId(list.getListId());
   }, [listId]);
 
   const { data: _list, isLoading, error } = useList(id, { enabled: !!id });
@@ -225,10 +227,25 @@ export default function ListEditor() {
     if (!name) return;
     addItem.mutate({ name }, { onSuccess: () => setText('') });
   };
-
   // Skeleton while loading or creating a new list
-  if (!list) {
+  if (!id || isLoading) {
     return listLoadingSkeleton;
+  }
+
+  if (error) {
+    return (
+      <div className="mobile-shell">
+        <header className="header" style={{ textAlign: 'center', fontSize: 32 }}>
+          <span>Failed to load list</span>
+          <br />
+          <br />
+          <span>{error.message}</span>
+        </header>
+        <main className="content">
+          <Link className="interactive-btn" to="/" style={{ width: '30%', textAlign: 'center', alignContent: 'center' }}>Home</Link>
+        </main>
+      </div>
+    );
   }
 
   return (
@@ -256,7 +273,7 @@ export default function ListEditor() {
                 if (timer) window.clearTimeout(timer);
                 timer = window.setTimeout(() => {
                   timer = null;
-                  setNameInput(list.name);
+                  setNameInput(list ? list.name : 'Grocery List');
                   setEditingName(true);
                 }, 500);
               };
@@ -278,7 +295,7 @@ export default function ListEditor() {
                   style={{ userSelect: 'none', cursor: 'default' }}
                   title="Long-press to rename"
                 >
-                  {list.name}
+                  {list ? list.name : 'Grocery List'}
                 </span>
               );
             })()}
@@ -369,7 +386,8 @@ export default function ListEditor() {
 
       <div className="footer">
         <div className="footer-bar">
-          <Link className="interactive-btn" to="/">Home</Link>
+          <Link className="interactive-btn" to="/" style={{ width: '30%', textAlign: 'center', alignContent: 'center', marginRight: 8 }}>Home</Link>
+          <Link className="interactive-btn" to="/lists" style={{ width: '30%', textAlign: 'center', alignContent: 'center', marginLeft: 8 }}>Other Lists</Link>
         </div>
       </div>
     </div>

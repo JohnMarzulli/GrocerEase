@@ -1,4 +1,5 @@
 import type { List, ListItem } from '@/services/types';
+import { isUuid } from './gocery-list-manager';
 
 /**
  * Holds a grocery list.
@@ -21,8 +22,20 @@ export class GroceryList {
             return new GroceryList(loadedList);
         }
         catch {
-            return GroceryList.createNewList(`GroceryList::Load(${listId}) => ${step}`);
+            if (isUuid(listId)) {
+                return GroceryList.createNewListWithId(listId);
+            }
+
+            return GroceryList.createNewList();
         }
+    }
+
+    /**
+     * Gets the Id of the list.
+     * @returns The uuid of the list.
+     */
+    public getListId(): string {
+        return this.list.id;
     }
 
     /**
@@ -43,7 +56,9 @@ export class GroceryList {
      * Changes the name of the list.
      * @param name 
      */
-    public setListName(name: string): void {
+    public setListName(
+        name: string
+    ): void {
         this.list.name = name?.trim() || 'Grocery List';
         this.save();
     }
@@ -230,14 +245,26 @@ export class GroceryList {
         this.list.items.sort((a, b) => a.order - b.order);
     }
 
-    private static createNewList(
-        source: string
+    private static createNewListWithId(
+        listId: string
     ): GroceryList {
-        // $TODO - Remove this once debugged
+        const list: List = {
+            id: listId,
+            name: `Grocery List`,
+            createdAt: new Date().toISOString(),
+            items: [],
+        };
+
+        safeLocalStorageSet(listId, JSON.stringify(list));
+
+        return new GroceryList(list);
+    }
+
+    private static createNewList(): GroceryList {
         const id = crypto.randomUUID();
         const list: List = {
             id,
-            name: `Grocery List from ${source}`,
+            name: `New Grocery List`,
             createdAt: new Date().toISOString(),
             items: [],
         };
