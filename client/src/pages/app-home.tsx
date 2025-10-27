@@ -1,4 +1,3 @@
-import { GoceryListManager } from '@/core/gocery-list-manager';
 import { useCreateList, useLists } from '@/services/hooks';
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -13,9 +12,7 @@ export default function Home() {
   const navigate = useNavigate();
 
   const goToList = useCallback(() => {
-    const groceryListManager = new GoceryListManager();
-    const defaultListId: string = groceryListManager.getDefaultListId();
-    navigate(`/list?id=${defaultListId}`);
+    navigate(`/lists`);
   }, [lists, create, navigate]);
 
   return (
@@ -24,7 +21,7 @@ export default function Home() {
       <main className="content">
         <section className="grid2" style={{ display: 'flex', justifyContent: 'center', flexDirection: 'column', alignItems: 'center', marginTop: '25vh' }}>
           <button className="tile" style={{ width: '50%' }} onClick={() => { /* future: shopping flow */ }}>Shop</button><br />
-          <button className="tile" style={{ width: '50%' }} onClick={goToList}>List</button>
+          <button className="tile" style={{ width: '50%' }} onClick={goToList}>Lists</button>
         </section>
       </main>
     </div>
