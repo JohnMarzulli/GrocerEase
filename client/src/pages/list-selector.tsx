@@ -39,7 +39,7 @@ export default function ListSelector() {
         style={{ width: '75%', alignItems: 'center', margin: '0 auto' }}
         onClick={() => goToList(crypto.randomUUID())}>Create New List</button>
       <main className="content">
-        <section className="grid2" style={{ display: 'flex', justifyContent: 'center', paddingTop: '5%' }}>
+        <section className="grid2" style={{ display: 'flex', justifyContent: 'center' }}>
             <div
               className="list-scroll"
               style={{
