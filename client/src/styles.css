@@ -62,6 +62,21 @@ body {
   font-weight: 600
 }
 
+.danger-tile {
+  background: #17344f;
+  color: #df0c0c;
+  border: 1px solid #df0c0c;
+  border-radius: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: center;
+  min-height: 60px;
+  min-width: 60px;
+  font-size: 18px;
+  font-weight: 600
+}
+
 .button {
   background: var(--accent);
   color: #03261d;
