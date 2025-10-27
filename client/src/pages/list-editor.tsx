@@ -316,7 +316,7 @@ export default function ListEditor() {
         </form>
 
         <ul className="list" ref={listRef}>
-          {list.items.map((i) => (
+          {(list?.items ?? []).map((i) => (
             <li
               key={i.id}
               data-item-id={i.id}
