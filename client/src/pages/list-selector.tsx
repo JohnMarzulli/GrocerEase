@@ -2,7 +2,7 @@ import { GoceryListManager } from '@/core/gocery-list-manager';
 import GroceryList from '@/core/grocery-list';
 import { useCreateList, useLists } from '@/services/hooks';
 import { useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const groceryListManager = new GoceryListManager();
 
@@ -33,52 +33,59 @@ export default function ListSelector() {
 
   return (
     <div className="mobile-shell">
-      <header className="header" style={{ textAlign: 'center', fontSize: '3rem' }}>GrocerEase</header>
+      <header className="header" style={{ textAlign: 'center', fontSize: '3rem', paddingBottom: '5%' }}>GrocerEase</header>
       <button
         className="tile"
-        style={{ width: '75%', display: 'flex', justifyContent: 'center', flexDirection: 'column', alignItems: 'center', margin: '0 auto' }}
+        style={{ width: '75%', alignItems: 'center', margin: '0 auto' }}
         onClick={() => goToList(crypto.randomUUID())}>Create New List</button>
       <main className="content">
         <section className="grid2" style={{ display: 'flex', justifyContent: 'center', paddingTop: '5%' }}>
-          <div
-            style={{
-              width: '100%',
-              maxHeight: '75vh',
-              overflowY: 'auto',
-              direction: 'rtl',
-              scrollbarWidth: 'auto',
-              scrollbarGutter: 'stable',
-              scrollMarginLeft: '0.5rem',
-              scrollMarginRight: '0.5rem',
-              WebkitOverflowScrolling: 'touch',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '0.5rem',
-            }}
-          >
-            {availableLists.map((listId) => (
-              <div key={listId} style={{ display: 'flex', alignItems: 'stretch', width: '90%', gap: '0.5rem' }}>
-                <button
-                  className="danger-tile"
-                  style={{ whiteSpace: 'nowrap', height: '10%', alignSelf: 'center' }}
-                  onClick={() => {
-                    groceryListManager.removeList(listId);
-                    navigate(0);
-                  }}
-                  aria-label={`Remove ${getListName(listId)}`}
-                  title="Remove list">X</button>
-                <button
-                  className="tile"
-                  style={{ flex: 1, width: '100%', whiteSpace: 'nowrap' }}
-                  onClick={() => goToList(listId)}
-                >
-                  {getListName(listId)}
-                </button>
-              </div>
-            ))}
-          </div>
+            <div
+              className="list-scroll"
+              style={{
+                width: '100%',
+                height: '100%',
+                maxHeight: '75vh',
+                overflowY: 'scroll', // always show scrollbar
+                direction: 'rtl',
+                scrollbarWidth: 'thin',
+                scrollbarGutter: 'stable',
+                scrollMarginLeft: '0.5rem',
+                scrollMarginRight: '0.5rem',
+                WebkitOverflowScrolling: 'touch',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '0.5rem',
+              }}
+            >
+              {availableLists.map((listId) => (
+                <div key={listId} style={{ display: 'flex', alignItems: 'stretch', width: '90%', gap: '0.5rem' }}>
+                  <button
+                    className="danger-tile"
+                    style={{ whiteSpace: 'nowrap', height: '10%', alignSelf: 'center' }}
+                    onClick={() => {
+                      groceryListManager.removeList(listId);
+                      navigate(0);
+                    }}
+                    aria-label={`Remove ${getListName(listId)}`}
+                    title="Remove list">X</button>
+                  <button
+                    className="tile"
+                    style={{ flex: 1, width: '100%', whiteSpace: 'nowrap' }}
+                    onClick={() => goToList(listId)}
+                  >
+                    {getListName(listId)}
+                  </button>
+                </div>
+              ))}
+            </div>
         </section>
+        <div className="footer">
+          <div className="footer-bar">
+            <Link className="interactive-btn" to="/" style={{ width: '30%', textAlign: 'center', alignContent: 'center', marginRight: 8 }}>Home</Link>
+          </div>
+        </div>
       </main>
     </div>
   );
