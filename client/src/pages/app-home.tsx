@@ -20,8 +20,8 @@ export default function Home() {
       <header className="header" style={{ textAlign: 'center', fontSize: '3rem' }}>GrocerEase</header>
       <main className="content">
         <section className="grid2" style={{ display: 'flex', justifyContent: 'center', flexDirection: 'column', alignItems: 'center', marginTop: '25vh' }}>
-          <button className="tile" style={{ width: '50%' }} onClick={() => { /* future: shopping flow */ }}>Shop</button><br />
-          <button className="tile" style={{ width: '50%' }} onClick={goToList}>Lists</button>
+          <button className="tile" style={{ width: '50%' }} onClick={() => navigate('/shopping-selector')}>Shop</button><br />
+          <button className="tile" style={{ width: '50%' }} onClick={goToList}>Edit</button>
         </section>
       </main>
     </div>

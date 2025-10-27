@@ -1,21 +1,7 @@
-import { GoceryListManager } from '@/core/gocery-list-manager';
-import GroceryList from '@/core/grocery-list';
+import { getListItemCount, getListName, groceryListManager } from '@/core/gocery-list-manager';
 import { useCreateList, useLists } from '@/services/hooks';
 import { useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-
-const groceryListManager = new GoceryListManager();
-
-function getListName(
-  listId: string,
-) {
-  if (!groceryListManager.isListAvailable(listId)) {
-    return `Grocery List (New)`;
-  }
-
-  const list: GroceryList = groceryListManager.getList(listId);
-  return list.getListName();
-}
 
 /**
  * Allows the user to select a list to edit, or to create a new one.
@@ -88,7 +74,7 @@ export default function ListSelector() {
                     </button>
                     <button
                       className="tile"
-                      style={{ flex: 1, width: '100%', whiteSpace: 'nowrap' }}
+                      style={{ flex: 1, width: '100%', whiteSpace: 'nowrap', color: getListItemCount(listId) > 0 ? 'inherit' : 'gray', textOverflow: 'ellipsis', overflow: 'hidden' }}
                       onClick={() => goToList(listId)}
                     >
                       {getListName(listId)}

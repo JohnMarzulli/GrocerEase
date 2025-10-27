@@ -98,3 +98,49 @@ export function isUuid(value: string): boolean {
 
     return uuidRegex.test(value);
 }
+
+/**
+ * Makes sure a valid list Id is returned from a query string.
+ * @returns a valid list uuid.
+ */
+export function getValidListIdFromQueryParams(): string {
+    const defaultListId: string = groceryListManager.getDefaultListId();
+
+    try {
+        const qs = new URLSearchParams(window.location.search);
+        const id = qs.get('id') || defaultListId;
+
+        if (!isUuid(id)) {
+            return defaultListId;
+        }
+
+        return id;
+    } catch {
+        return defaultListId;
+    }
+}
+
+export function getListName(
+    listId: string,
+) {
+    if (!groceryListManager.isListAvailable(listId)) {
+        return `Grocery List (New)`;
+    }
+
+    const list: GroceryList = groceryListManager.getList(listId);
+    return list.getListName();
+}
+
+export function getListItemCount(
+    listId: string,
+) {
+    if (!groceryListManager.isListAvailable(listId)) {
+        return 0;
+    }
+
+    const list: GroceryList = groceryListManager.getList(listId);
+
+    return list.getList().items.length;
+}
+
+export const groceryListManager = new GoceryListManager();

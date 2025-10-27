@@ -1,31 +1,12 @@
-import { GoceryListManager, isUuid } from '@/core/gocery-list-manager';
+import { getValidListIdFromQueryParams, groceryListManager } from '@/core/gocery-list-manager';
 import { useAddItem, useDecrementItem, useIncrementItem, useList, useMoveItem, useRenameItem, useRenameList } from '@/services/hooks';
 import { useToast } from '@/state/toast';
 import { FormEvent, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 
-const groceryListManager = new GoceryListManager();
-
-function getValidListId(): string {
-  const defaultListId: string = groceryListManager.getDefaultListId();
-
-  try {
-    const qs = new URLSearchParams(window.location.search);
-    const id = qs.get('id') || defaultListId;
-
-    if (!isUuid(id)) {
-      return defaultListId;
-    }
-
-    return id;
-  } catch {
-    return defaultListId;
-  }
-}
-
 export default function ListEditor() {
   // Extract GUID from the query string as listId
-  const listId: string = getValidListId();
+  const listId: string = getValidListIdFromQueryParams();
 
   // Resolve the actual list id via the manager using the guid
   const [id, setId] = useState<string>('');
@@ -366,7 +347,7 @@ export default function ListEditor() {
                       onPointerLeave={cancel}
                       onPointerCancel={cancel}
                       onContextMenu={(e) => e.preventDefault()}
-                      style={{ textDecoration: i.status === 'completed' ? 'line-through' : 'none', userSelect: 'none', cursor: 'default' }}
+                      style={{ textDecoration: i.status === 'completed' ? 'line-through' : 'none', color: (i.status === 'completed' ? 'gray' : ''), userSelect: 'none', cursor: 'default' }}
                       title="Long-press to rename"
                     >
                       {i.name}
