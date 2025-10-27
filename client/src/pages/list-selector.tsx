@@ -41,44 +41,61 @@ export default function ListSelector() {
       <main className="content">
         <section className="grid2" style={{ display: 'flex', justifyContent: 'center' }}>
             <div
-              className="list-scroll"
               style={{
+                flex: 1,
+                minHeight: 0,
                 width: '100%',
-                height: '100%',
-                maxHeight: '75vh',
-                overflowY: 'scroll', // always show scrollbar
-                direction: 'rtl',
-                scrollbarWidth: 'thin',
-                scrollbarGutter: 'stable',
-                scrollMarginLeft: '0.5rem',
-                scrollMarginRight: '0.5rem',
-                WebkitOverflowScrolling: 'touch',
                 display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: '0.5rem',
+                justifyContent: 'center',
               }}
             >
-              {availableLists.map((listId) => (
-                <div key={listId} style={{ display: 'flex', alignItems: 'stretch', width: '90%', gap: '0.5rem' }}>
-                  <button
-                    className="danger-tile"
-                    style={{ whiteSpace: 'nowrap', height: '10%', alignSelf: 'center' }}
-                    onClick={() => {
-                      groceryListManager.removeList(listId);
-                      navigate(0);
-                    }}
-                    aria-label={`Remove ${getListName(listId)}`}
-                    title="Remove list">X</button>
-                  <button
-                    className="tile"
-                    style={{ flex: 1, width: '100%', whiteSpace: 'nowrap' }}
-                    onClick={() => goToList(listId)}
-                  >
-                    {getListName(listId)}
-                  </button>
-                </div>
-              ))}
+              <div
+                className="list-scroll"
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  minHeight: '75vh',
+                  flex: 1,
+                  overflowY: 'auto',
+                  direction: 'rtl',
+                  scrollbarColor: '#519b54ff transparent',
+                  scrollbarWidth: 'thin',
+                  scrollbarGutter: 'stable',
+                  scrollMarginLeft: '0.5rem',
+                  scrollMarginRight: '0.5rem',
+                  WebkitOverflowScrolling: 'touch',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: '1.0rem',
+                  // leave space so the footer "Home" button never overlaps
+                  paddingBottom: 'calc(env(safe-area-inset-bottom) + 64px)',
+                }}
+              >
+                {availableLists.map((listId) => (
+                  <div key={listId} style={{ display: 'flex', alignItems: 'stretch', width: '90%', gap: '0.5rem' }}>
+                    <button
+                      className="danger-tile"
+                      style={{ whiteSpace: 'nowrap', height: '10%', alignSelf: 'center' }}
+                      onClick={() => {
+                        groceryListManager.removeList(listId);
+                        navigate(0);
+                      }}
+                      aria-label={`Remove ${getListName(listId)}`}
+                      title="Remove list"
+                    >
+                      X
+                    </button>
+                    <button
+                      className="tile"
+                      style={{ flex: 1, width: '100%', whiteSpace: 'nowrap' }}
+                      onClick={() => goToList(listId)}
+                    >
+                      {getListName(listId)}
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
         </section>
         <div className="footer">
