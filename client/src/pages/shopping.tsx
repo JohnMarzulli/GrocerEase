@@ -1,34 +1,15 @@
-import { GoceryListManager, isUuid } from '@/core/gocery-list-manager';
+import { getValidListIdFromQueryParams, groceryListManager } from '@/core/gocery-list-manager';
 import GroceryList from '@/core/grocery-list';
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 import { Link } from 'react-router-dom';
 
-const groceryListManager = new GoceryListManager();
-
-function getValidListId(): string {
-  const defaultListId: string = groceryListManager.getDefaultListId();
-
-  try {
-    const qs = new URLSearchParams(window.location.search);
-    const id = qs.get('id') || defaultListId;
-
-    if (!isUuid(id)) {
-      return defaultListId;
-    }
-
-    return id;
-  } catch {
-    return defaultListId;
-  }
-}
 
 export default function Shopping() {
   // Extract GUID from the query string as listId
-  const listId: string = getValidListId();
+  const listId: string = getValidListIdFromQueryParams();
   const listRef = useRef<HTMLUListElement | null>(null);
 
   // Resolve the actual list id via the manager using the guid
-  const [id, setId] = useState<string>('');
   const list: GroceryList = groceryListManager.getList(listId);
   const listItems = list.getList().items;
 

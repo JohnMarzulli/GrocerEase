@@ -156,6 +156,24 @@ export class GroceryList {
     }
 
     /**
+     * Marks an item as acquired by its item id.
+     * @param itemId The uuid of the list item to mark as acquired.
+     * @returns The updated list item.
+     */
+    public itemAcquired(
+        itemId: string
+    ): ListItem | undefined {
+        const item: ListItem | undefined = this.findItemById(itemId);
+
+        if (item) {
+            item.status = 'completed';
+            this.save();
+        }
+
+        return item;
+    }
+
+    /**
      * Removes an item from the list by its item id.
      * @param itemId The uuid of the list item to remove.
      * @returns undefined
