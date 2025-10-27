@@ -347,7 +347,7 @@ export default function ListEditor() {
                       onPointerLeave={cancel}
                       onPointerCancel={cancel}
                       onContextMenu={(e) => e.preventDefault()}
-                      style={{ textDecoration: i.status === 'completed' ? 'line-through' : 'none', userSelect: 'none', cursor: 'default' }}
+                      style={{ textDecoration: i.status === 'completed' ? 'line-through' : 'none', color: (i.status === 'completed' ? 'gray' : ''), userSelect: 'none', cursor: 'default' }}
                       title="Long-press to rename"
                     >
                       {i.name}
