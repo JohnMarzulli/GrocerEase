@@ -1,0 +1,24 @@
+import { HttpListsService } from '@/services/impl/http-lists-service';
+import { MockListsService } from '@/services/impl/mock-lists-service';
+import { SimulatedListsService } from '@/services/impl/simulated-lists-service';
+import type { ListsService } from '@/services/types';
+import 'reflect-metadata';
+import { container } from 'tsyringe';
+import { TOKENS } from './tokens';
+
+const mode = (import.meta as any).env?.VITE_API_MODE || 'sim';
+
+let listsImpl: new () => ListsService;
+if (mode === 'mock') {
+  listsImpl = MockListsService;
+} else if (mode === 'http') {
+  listsImpl = HttpListsService;
+} else {
+  listsImpl = SimulatedListsService;
+}
+
+// Ensure a single instance app-wide so in-memory simulators/mocks share state
+container.registerSingleton<ListsService>(TOKENS.ListsService, listsImpl);
+
+export { container };
+
