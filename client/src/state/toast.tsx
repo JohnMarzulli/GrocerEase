@@ -1,16 +1,24 @@
 import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
 
+type ToastOptions = {
+  durationMs?: number;
+  style?: React.CSSProperties;
+};
+
 type ToastContextType = {
-  show: (message: string, durationMs?: number) => void;
+  show: (message: string, options?: ToastOptions) => void;
 };
 
 const ToastContext = createContext<ToastContextType | undefined>(undefined);
 
-export function ToastProvider({ children }: { children: React.ReactNode }) {
+export function ToastProvider({ children }: { children: React.ReactNode; }) {
   const [message, setMessage] = useState<string | null>(null);
+  const [toastStyle, setToastStyle] = useState<React.CSSProperties | undefined>(undefined);
 
-  const show = useCallback((msg: string, durationMs = 2500) => {
+  const show = useCallback((msg: string, options: ToastOptions = {}) => {
+    const { durationMs = 2500, style } = options;
     setMessage(msg);
+    setToastStyle(style);
     if (durationMs > 0) {
       window.setTimeout(() => setMessage((m) => (m === msg ? null : m)), durationMs);
     }
@@ -22,7 +30,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     <ToastContext.Provider value={value}>
       {children}
       {message && (
-        <div className="toast" role="status" aria-live="polite">
+        <div className="toast" role="status" aria-live="polite" style={toastStyle}>
           {message}
         </div>
       )}

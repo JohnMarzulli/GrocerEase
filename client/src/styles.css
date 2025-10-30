@@ -269,6 +269,26 @@ body {
   animation: toast-in .2s ease-out
 }
 
+/* Share button - fixed in bottom-right */
+.share-btn {
+  position: fixed;
+  right: 10px;
+  bottom: 18px; /* align with footer */
+  background: var(--card);
+  color: var(--fg);
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+  cursor: pointer;
+  z-index: 70;
+}
+
+.share-btn:active { transform: translateY(1px); }
+
+.share-btn svg { display: block; }
+
 @keyframes toast-in {
   from {
     opacity: 0;
