@@ -143,4 +143,35 @@ export function getListItemCount(
     return list.getList().items.length;
 }
 
+export function getListItemsRemainingCount(
+    listId: string,
+) {
+    if (!groceryListManager.isListAvailable(listId)) {
+        return 0;
+    }
+
+    const list: GroceryList = groceryListManager.getList(listId);
+
+    return list.getList().items.filter(i => i.status !== 'completed').length;
+}
+
+export function getItemsText(
+    listId: string,
+) {
+    const noItems = "No items";
+
+    if (!groceryListManager.isListAvailable(listId)) {
+        return noItems;
+    }
+
+    const itemRemainingCount: number = getListItemsRemainingCount(listId);
+    const itemTotalCount: number = getListItemCount(listId);
+
+    if (itemRemainingCount === 0) {
+        return noItems;
+    }
+
+    return `(${itemRemainingCount}/${itemTotalCount} :Remaining)`;
+}
+
 export const groceryListManager = new GoceryListManager();
