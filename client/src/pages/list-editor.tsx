@@ -1,3 +1,4 @@
+import ShareButton from '@/components/share-button';
 import { getValidListIdFromQueryParams, groceryListManager } from '@/core/gocery-list-manager';
 import { useAddItem, useDecrementItem, useIncrementItem, useList, useMoveItem, useRenameItem, useRenameList } from '@/services/hooks';
 import { useToast } from '@/state/toast';
@@ -367,10 +368,12 @@ export default function ListEditor() {
 
       <div className="footer">
         <div className="footer-bar">
-          <Link className="interactive-btn" to="/" style={{ width: '30%', textAlign: 'center', alignContent: 'center', marginRight: 8 }}>Home</Link>
-          <Link className="interactive-btn" to="/lists" style={{ width: '30%', textAlign: 'center', alignContent: 'center', marginLeft: 8 }}>Other Lists</Link>
+          <Link className="interactive-btn" to="/" style={{ width: '25%', textAlign: 'center', alignContent: 'center', marginRight: 2 }}>Home</Link>
+          <Link className="interactive-btn" to={`/shopping?id=${encodeURIComponent(listId)}`} style={{ width: '25%', textAlign: 'center', alignContent: 'center', marginRight: 2 }}>Shop</Link>
+          <Link className="interactive-btn" to="/lists" style={{ width: '25%', textAlign: 'center', alignContent: 'center' }}>Other Lists</Link>
         </div>
       </div>
+      <ShareButton />
     </div>
   );
 }
