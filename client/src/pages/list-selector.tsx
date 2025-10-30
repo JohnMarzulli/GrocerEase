@@ -1,4 +1,4 @@
-import { getListItemCount, getListName, groceryListManager } from '@/core/gocery-list-manager';
+import { getListItemCount, getListItemsRemainingCount, getListName, groceryListManager, getItemsText } from '@/core/gocery-list-manager';
 import { useCreateList, useLists } from '@/services/hooks';
 import { useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -14,7 +14,7 @@ export default function ListSelector() {
   const navigate = useNavigate();
 
   const goToList = useCallback((listId: string) => {
-    navigate(`/list?id=${listId}`);
+    navigate(`/edit?id=${listId}`);
   }, [lists, create, navigate]);
 
   return (
@@ -58,7 +58,7 @@ export default function ListSelector() {
                 paddingBottom: 'calc(env(safe-area-inset-bottom) + 64px)',
               }}
             >
-              {availableLists.map((listId) => (
+              {availableLists.sort((a, b) => getListItemsRemainingCount(b) - getListItemsRemainingCount(a)).map((listId) => (
                 <div key={listId} style={{ display: 'flex', alignItems: 'stretch', width: '90%', gap: '0.5rem' }}>
                   <button
                     className="danger-tile"
@@ -74,13 +74,11 @@ export default function ListSelector() {
                   </button>
                   <button
                     className="tile"
-                    style={{ flex: 1, width: '100%', whiteSpace: 'nowrap', color: getListItemCount(listId) > 0 ? 'inherit' : 'gray', textOverflow: 'ellipsis', overflow: 'hidden' }}
+                    style={{ flex: 1, width: '100%', whiteSpace: 'wrap', color: getListItemCount(listId) > 0 ? 'inherit' : 'gray', textOverflow: 'ellipsis', overflow: 'hidden' }}
                     onClick={() => goToList(listId)}
                   >
-                    <br/>
-                    {`${getListName(listId)}`}
-                    &nbsp;
-                    {`(${getListItemCount(listId)} item${getListItemCount(listId) === 1 ? '' : 's'})`}
+                    {getListName(listId)}<br />
+                    {getItemsText(listId)}
                   </button>
                 </div>
               ))}
@@ -89,7 +87,7 @@ export default function ListSelector() {
         </section>
         <div className="footer">
           <div className="footer-bar">
-            <Link className="interactive-btn" to="/" style={{ width: '30%', textAlign: 'center', alignContent: 'center', marginRight: 8 }}>Home</Link>
+            <Link className="interactive-btn" to="/" style={{ width: '25%', textAlign: 'center', alignContent: 'center', marginRight: 2 }}>Home</Link>
           </div>
         </div>
       </main>

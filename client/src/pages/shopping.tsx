@@ -44,11 +44,11 @@ export default function Shopping() {
           ))}
         </ul>
       </main>
-
       <div className="footer">
         <div className="footer-bar">
-          <Link className="interactive-btn" to="/" style={{ width: '30%', textAlign: 'center', alignContent: 'center', marginRight: 8 }}>Home</Link>
-          <Link className="interactive-btn" to="/shopping-selector" style={{ width: '30%', textAlign: 'center', alignContent: 'center', marginLeft: 8 }}>Other Lists</Link>
+          <Link className="interactive-btn" to="/" style={{ width: '25%', textAlign: 'center', alignContent: 'center', marginRight: 2 }}>Home</Link>
+          <Link className="interactive-btn" to={`/edit?id=${encodeURIComponent(listId)}`} style={{ width: '25%', textAlign: 'center', alignContent: 'center', marginRight: 2 }}>Edit</Link>
+          <Link className="interactive-btn" to="/shopping-selector" style={{ width: '25%', textAlign: 'center', alignContent: 'center' }}>Other Lists</Link>
         </div>
       </div>
     </div>

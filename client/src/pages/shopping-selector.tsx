@@ -54,11 +54,11 @@ export default function ShoppingSelector() {
                 paddingBottom: 'calc(env(safe-area-inset-bottom) + 64px)',
               }}
             >
-              {availableLists.map((listId) => (
+              {availableLists.filter((listId) => getListItemCount(listId) > 0).map((listId) => (
                 <div key={listId} style={{ display: 'flex', alignItems: 'stretch', width: '90%', gap: '0.5rem' }}>
                   <button
                     className="tile"
-                    style={{ flex: 1, width: '100%', whiteSpace: 'nowrap', visibility: getListItemCount(listId) > 0 ? 'visible' : 'hidden', textOverflow: 'ellipsis', overflow: 'hidden' }}
+                    style={{ flex: 1, width: '100%', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}
                     onClick={() => goToList(listId)}
                   >
                     {getListName(listId)}
