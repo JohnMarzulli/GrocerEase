@@ -273,7 +273,7 @@ body {
 .share-btn {
   position: fixed;
   right: 10px;
-  bottom: 18px; /* align with footer */
+  top: 16px; /* align with footer */
   background: var(--card);
   color: var(--fg);
   border: none;
