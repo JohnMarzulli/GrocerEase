@@ -107,7 +107,7 @@ export class MockListsService implements ListsService {
     const list = this.lists.get(listId);
     if (!list) throw new Error('List not found');
     const it = list.items.find(i => i.id === itemId);
-    if (!it) throw new Error('Item not found');
+    if (!it) throw new Error(`Item ${itemId} => ${name} not found`);
     it.name = name.trim() || it.name;
     return it;
   }
