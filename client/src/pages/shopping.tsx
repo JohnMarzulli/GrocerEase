@@ -1,4 +1,4 @@
-import { getValidListIdFromQueryParams, groceryListManager } from '@/core/gocery-list-manager';
+import { getValidListIdFromQueryParams, groceryListManager } from '@/core/grocery-list-manager';
 import GroceryList from '@/core/grocery-list';
 import { useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';

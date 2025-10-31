@@ -5,7 +5,7 @@ import { GroceryList } from './grocery-list';
  * Top level management for grocery lists.
  * Can load an existing list, or create a new one.
  */
-export class GoceryListManager {
+export class GroceryListManager {
     public constructor() {
     }
 
@@ -47,7 +47,7 @@ export class GoceryListManager {
     /**
      * Creates a new grocery list.
      * This new list will be saved automatically.
-     * @returns A new gocert list.
+     * @returns A new grocery list.
      */
     public createNewList(): GroceryList {
         const list: GroceryList = GroceryList.load(crypto.randomUUID());
@@ -174,4 +174,4 @@ export function getItemsText(
     return `(${itemRemainingCount}/${itemTotalCount} :Remaining)`;
 }
 
-export const groceryListManager = new GoceryListManager();
+export const groceryListManager = new GroceryListManager();

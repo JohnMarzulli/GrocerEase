@@ -1,5 +1,5 @@
 import { encodeBase64Url } from '@/core/encoding';
-import { getValidListIdFromQueryParams, groceryListManager } from '@/core/gocery-list-manager';
+import { getValidListIdFromQueryParams, groceryListManager } from '@/core/grocery-list-manager';
 import { useToast } from '@/state/toast';
 import { useLocation } from 'react-router-dom';
 

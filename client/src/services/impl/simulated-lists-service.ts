@@ -1,4 +1,4 @@
-import { GoceryListManager } from '@/core/gocery-list-manager';
+import { GroceryListManager } from '@/core/grocery-list-manager';
 import GroceryList from '@/core/grocery-list';
 import type { List, ListItem, ListSummary, ListsService } from '@/services/types';
 
@@ -6,7 +6,7 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const latency = () => 200 + Math.random() * 600;
 
 export class SimulatedListsService implements ListsService {
-  private groceryManager = new GoceryListManager();
+  private groceryManager = new GroceryListManager();
   private groceryList: GroceryList;
 
 

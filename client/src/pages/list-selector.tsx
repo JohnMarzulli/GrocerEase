@@ -1,4 +1,4 @@
-import { getListItemCount, getListItemsRemainingCount, getListName, groceryListManager, getItemsText } from '@/core/gocery-list-manager';
+import { getListItemCount, getListItemsRemainingCount, getListName, groceryListManager, getItemsText } from '@/core/grocery-list-manager';
 import { useCreateList, useLists } from '@/services/hooks';
 import { useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';

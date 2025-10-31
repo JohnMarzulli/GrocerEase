@@ -1,5 +1,5 @@
 import type { List, ListItem } from '@/services/types';
-import { isUuid } from './gocery-list-manager';
+import { isUuid } from './grocery-list-manager';
 
 /**
  * Holds a grocery list.
@@ -197,7 +197,7 @@ export class GroceryList {
         itemId: string,
         newName: string
     ): ListItem | undefined {
-        const it = this.findItemByName(itemId);
+        const it = this.findItemById(itemId);
 
         if (!it) return undefined;
 
