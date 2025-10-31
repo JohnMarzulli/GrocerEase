@@ -47,11 +47,11 @@ export class MockListsService implements ListsService {
     const list = this.lists.get(listId);
     if (!list) throw new Error('List not found');
     const maxOrder = list.items.reduce((max, i) => Math.max(max, i.order), -1);
-    const item: ListItem = { 
-      id: `i-${Math.random().toString(36).slice(2, 9)}`, 
-      name, 
-      qty, 
-      unit, 
+    const item: ListItem = {
+      id: `i-${Math.random().toString(36).slice(2, 9)}`,
+      name,
+      qty,
+      unit,
       status: 'pending',
       order: maxOrder + 1
     };
@@ -97,6 +97,17 @@ export class MockListsService implements ListsService {
     return it;
   }
 
+  async refreshItem(listId: string, itemId: string): Promise<ListItem | undefined> {
+    const list = this.lists.get(listId);
+    if (!list) throw new Error('List not found');
+    const it = list.items.find(i => i.id === itemId);
+    if (!it) throw new Error('Item not found');
+
+    it.status = 'pending';
+
+    return it;
+  }
+
   async removeItem(listId: string, itemId: string): Promise<void> {
     const list = this.lists.get(listId);
     if (!list) throw new Error('List not found');
@@ -117,7 +128,7 @@ export class MockListsService implements ListsService {
     if (!list) throw new Error('List not found');
     const item = list.items.find(i => i.id === itemId);
     if (!item) throw new Error('Item not found');
-    
+
     const oldOrder = item.order ?? list.items.indexOf(item);
     if (newOrder === oldOrder) return item;
 

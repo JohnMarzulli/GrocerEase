@@ -7,12 +7,14 @@ const useListsService = (): ListsService => useService<ListsService>(TOKENS.List
 
 export function useLists() {
   const api = useListsService();
+
   return useQuery({ queryKey: ['lists'], queryFn: () => api.getLists() });
 }
 
 export function useCreateList() {
   const api = useListsService();
   const qc = useQueryClient();
+
   return useMutation({
     mutationFn: (name: string) => api.createList(name),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['lists'] }),
@@ -21,6 +23,7 @@ export function useCreateList() {
 
 export function useList(id?: string, opts?: { enabled?: boolean; }) {
   const api = useListsService();
+
   return useQuery<List>({
     queryKey: ['list', id],
     queryFn: () => api.getList(id as string),
@@ -32,6 +35,7 @@ export function useList(id?: string, opts?: { enabled?: boolean; }) {
 export function useAddItem(id: string) {
   const api = useListsService();
   const qc = useQueryClient();
+
   return useMutation<ListItem, Error, { name: string; qty?: number; unit?: string; }>(
     {
       mutationFn: ({ name, qty, unit }) => api.addItem(id, name, qty, unit),
@@ -45,6 +49,7 @@ export function useAddItem(id: string) {
 export function useToggleItem(listId: string) {
   const api = useListsService();
   const qc = useQueryClient();
+
   return useMutation<ListItem, Error, { itemId: string; }>({
     mutationFn: ({ itemId }) => api.toggleItem(listId, itemId),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['list', listId] }),
@@ -54,6 +59,7 @@ export function useToggleItem(listId: string) {
 export function useRenameList(listId: string) {
   const api = useListsService();
   const qc = useQueryClient();
+
   return useMutation<List, Error, { name: string; }>({
     mutationFn: ({ name }) => api.updateListName(listId, name),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['list', listId] }),
@@ -63,6 +69,7 @@ export function useRenameList(listId: string) {
 export function useIncrementItem(listId: string) {
   const api = useListsService();
   const qc = useQueryClient();
+
   return useMutation<ListItem | undefined, Error, { itemId: string; step?: number; }>(
     {
       mutationFn: ({ itemId, step }) => api.incrementItem(listId, itemId, step),
@@ -74,6 +81,7 @@ export function useIncrementItem(listId: string) {
 export function useDecrementItem(listId: string) {
   const api = useListsService();
   const qc = useQueryClient();
+
   return useMutation<ListItem | undefined, Error, { itemId: string; step?: number; }>(
     {
       mutationFn: ({ itemId, step }) => api.decrementItem(listId, itemId, step),
@@ -82,9 +90,22 @@ export function useDecrementItem(listId: string) {
   );
 }
 
+export function useRefreshItem(listId: string) {
+  const api = useListsService();
+  const qc = useQueryClient();
+
+  return useMutation<ListItem | undefined, Error, { itemId: string; }>(
+    {
+      mutationFn: ({ itemId }) => api.refreshItem(listId, itemId),
+      onSuccess: () => qc.invalidateQueries({ queryKey: ['list', listId] }),
+    }
+  );
+}
+
 export function useRemoveItem(listId: string) {
   const api = useListsService();
   const qc = useQueryClient();
+
   return useMutation<void, Error, { itemId: string; }>(
     {
       mutationFn: ({ itemId }) => api.removeItem(listId, itemId),
@@ -96,6 +117,7 @@ export function useRemoveItem(listId: string) {
 export function useRenameItem(listId: string) {
   const api = useListsService();
   const qc = useQueryClient();
+
   return useMutation<ListItem, Error, { itemId: string; name: string; }>(
     {
       mutationFn: ({ itemId, name }) => api.updateItemName(listId, itemId, name),
@@ -107,6 +129,7 @@ export function useRenameItem(listId: string) {
 export function useMoveItem(listId: string) {
   const api = useListsService();
   const qc = useQueryClient();
+
   return useMutation<ListItem, Error, { itemId: string; newOrder: number; }>(
     {
       mutationFn: ({ itemId, newOrder }) => api.moveItem(listId, itemId, newOrder),

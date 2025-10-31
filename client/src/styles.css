@@ -227,6 +227,16 @@ body {
   text-decoration: none;
 }
 
+.adjustment-btn {
+  background: #17344f;
+  color: #e3f6f1;
+  border: 1px solid #24516f;
+  border-radius: 25%;
+  padding: 8px 8px;
+  font-weight: 400;
+  text-decoration: none;
+}
+
 .interactive-btn:active {
   transform: translateY(1px)
 }

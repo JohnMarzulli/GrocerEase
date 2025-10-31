@@ -1,5 +1,5 @@
-import { GroceryListManager } from '@/core/grocery-list-manager';
 import GroceryList from '@/core/grocery-list';
+import { GroceryListManager } from '@/core/grocery-list-manager';
 import type { List, ListItem, ListSummary, ListsService } from '@/services/types';
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -71,6 +71,13 @@ export class SimulatedListsService implements ListsService {
     const l = this.groceryList.getList();
     if (listId && listId !== l.id) throw new Error('List not found');
     return this.groceryList.decreaseItemAmountById(itemId, step);
+  }
+
+  async refreshItem(listId: string, itemId: string): Promise<ListItem | undefined> {
+    const l = this.groceryList.getList();
+    if (listId && listId !== l.id) throw new Error('List not found');
+
+    return this.groceryList.putItemBack(itemId);
   }
 
   async removeItem(listId: string, itemId: string): Promise<void> {

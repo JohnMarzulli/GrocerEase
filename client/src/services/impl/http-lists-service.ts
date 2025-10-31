@@ -42,6 +42,10 @@ export class HttpListsService implements ListsService {
     return this.json(`${this.base}/list-items/${itemId}`, { method: 'PATCH', body: JSON.stringify({ op: 'decrement', step, listId }) });
   }
 
+  async refreshItem(listId: string, itemId: string): Promise<ListItem | undefined> {
+    return this.json(`${this.base}/list-items/${itemId}`, { method: 'PATCH', body: JSON.stringify({ op: 'refresh', listId }) });
+  }
+
   async removeItem(listId: string, itemId: string): Promise<void> {
     await this.json(`${this.base}/list-items/${itemId}`, { method: 'DELETE', body: JSON.stringify({ listId }) });
   }

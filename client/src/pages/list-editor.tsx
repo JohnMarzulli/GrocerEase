@@ -1,6 +1,6 @@
 import ShareButton from '@/components/share-button';
 import { getValidListIdFromQueryParams, groceryListManager } from '@/core/grocery-list-manager';
-import { useAddItem, useDecrementItem, useIncrementItem, useList, useMoveItem, useRenameItem, useRenameList } from '@/services/hooks';
+import { useAddItem, useDecrementItem, useIncrementItem, useList, useMoveItem, useRefreshItem, useRenameItem, useRenameList } from '@/services/hooks';
 import { useToast } from '@/state/toast';
 import { FormEvent, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -39,6 +39,7 @@ export default function ListEditor() {
   const addItem = useAddItem(id ?? '');
   const inc = useIncrementItem(id ?? '');
   const dec = useDecrementItem(id ?? '');
+  const refresh = useRefreshItem(id ?? '');
   const renameItem = useRenameItem(id ?? '');
   const { show } = useToast();
   const [text, setText] = useState('');
@@ -359,11 +360,14 @@ export default function ListEditor() {
               )}
               <div style={{ display: 'flex', gap: 6, marginLeft: 'auto', alignItems: 'center' }}>
                 <span className="badge">{i.qty} {i.unit}</span>
-                <button className="interactive-btn" type="button" onClick={() => dec.mutate({ itemId: i.id })}>
+                <button className="adjustment-btn" type="button" onClick={() => dec.mutate({ itemId: i.id })}>
                   <span style={{ display: 'inline-block', transform: 'scale(1.5)', transformOrigin: 'center', lineHeight: 0, fontWeight: 'normal' }}>-</span>
                 </button>
-                <button className="interactive-btn" type="button" onClick={() => inc.mutate({ itemId: i.id })}>
+                <button className="adjustment-btn" type="button" onClick={() => inc.mutate({ itemId: i.id })}>
                   <span style={{ display: 'inline-block', transform: 'scale(1.5)', transformOrigin: 'center', lineHeight: 0, fontWeight: 'normal' }}>+</span>
+                </button>
+                <button className="adjustment-btn" type="button" onClick={() => refresh.mutate({ itemId: i.id })}>
+                  <span style={{ display: 'inline-block', transform: 'scale(1.5)', transformOrigin: 'center', lineHeight: 0, fontWeight: 'normal', color: i.status === 'completed' ? 'var(--fg)' : 'var(--bg)' }}>⟳</span>
                 </button>
               </div>
             </li>
