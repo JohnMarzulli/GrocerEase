@@ -146,6 +146,10 @@ body {
 
 /* Floating preview clone while dragging */
 .dragging-floating {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
   transform-origin: center top;
   border-radius: 8px;
@@ -159,37 +163,38 @@ body {
 }
 
 .drag-handle {
-  width: 12px;
-  height: 100%;
   display: grid;
-  grid-template: repeat(3, 1fr)/repeat(2, 1fr);
-  gap: 0%;
-  padding: 2px;
-  cursor: grab;
-  touch-action: none;
+  grid-template: repeat(4, auto) / repeat(2, auto);
+  place-items: center;
+  gap: 4px;
+  padding: 10px 16px;
+  border: 1px solid #24516f;
+  border-radius: 25%;
   background: #17344f;
   color: #e3f6f1;
+  cursor: grab;
+  touch-action: none;
 }
 
 .drag-handle::before {
   content: "";
-  grid-area: 1/1/4/3;
+  grid-area: 2/3/1/1;
   background: var(--line);
   border-radius: 4px;
-  z-index: 0
+  z-index: 1
 }
 
 .drag-handle i {
-  width: 3px;
-  height: 3px;
+  width: 1px;
+  height: 1px;
   background: var(--fg);
-  border-radius: 50%;
-  position: relative;
   z-index: 1
 }
 
 .dragging {
-  opacity: 0.5
+  opacity: 0.5;
+  flex: 0 0 auto;
+  width: auto;
 }
 
 .list li.drag-target {
