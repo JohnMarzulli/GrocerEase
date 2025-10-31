@@ -61,6 +61,5 @@ jobs:
         with:
           app-name: 'grocerease'
           slot-name: 'Production'
-          app_location: '/client'
           package: .
           
