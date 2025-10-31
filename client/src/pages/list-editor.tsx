@@ -1,5 +1,5 @@
 import ShareButton from '@/components/share-button';
-import { getValidListIdFromQueryParams, groceryListManager } from '@/core/gocery-list-manager';
+import { getValidListIdFromQueryParams, groceryListManager } from '@/core/grocery-list-manager';
 import { useAddItem, useDecrementItem, useIncrementItem, useList, useMoveItem, useRenameItem, useRenameList } from '@/services/hooks';
 import { useToast } from '@/state/toast';
 import { FormEvent, useEffect, useLayoutEffect, useRef, useState } from 'react';
@@ -32,22 +32,16 @@ export default function ListEditor() {
   }, [editingName]);
 
   // simple inline rename UI
-  const rename = useRenameList(id || '');
-
-  const handleNameCommit = () => {
-    const next = nameInput.trim() || 'Grocery List';
-    setEditingName(false);
-    if (id) rename.mutate({ name: next });
-  };
 
   const list = _list;
+
+  const renameList = useRenameList(id || '');
   const addItem = useAddItem(id ?? '');
   const inc = useIncrementItem(id ?? '');
   const dec = useDecrementItem(id ?? '');
   const renameItem = useRenameItem(id ?? '');
   const { show } = useToast();
   const [text, setText] = useState('');
-  const creatingRef = useRef(false);
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
   const [editingItemText, setEditingItemText] = useState('');
 
@@ -61,6 +55,12 @@ export default function ListEditor() {
   const positionsRef = useRef<Map<string, DOMRect>>(new Map());
   const floatingRef = useRef<HTMLElement | null>(null);
   const dragOffsetRef = useRef<number>(0);
+
+  const handleListNameCommit = () => {
+    const next = nameInput.trim() || 'Grocery List';
+    setEditingName(false);
+    if (id) renameList.mutate({ name: next });
+  };
 
   const startDrag = (e: any, itemId: string) => {
     e.preventDefault();
@@ -240,7 +240,7 @@ export default function ListEditor() {
             style={{ fontSize: 28, textAlign: 'center', width: '100%', background: 'transparent' }}
             value={nameInput}
             onChange={(e) => setNameInput(e.target.value)}
-            onBlur={handleNameCommit}
+            onBlur={handleListNameCommit}
             onKeyDown={(e) => {
               if (e.key === 'Enter') (e.target as HTMLInputElement).blur();
               if (e.key === 'Escape') setEditingName(false);
@@ -288,6 +288,7 @@ export default function ListEditor() {
         <form onSubmit={onSubmit} style={{ display: 'flex', gap: 8 }}>
           <input
             className="input"
+            style={{ fontSize: 16 }}
             value={text}
             onChange={(e) => setText(e.target.value)}
             placeholder="New Item Name"
@@ -315,12 +316,12 @@ export default function ListEditor() {
               {editingItemId === i.id ? (
                 <input
                   className="input"
-                  style={{ background: 'transparent' }}
+                  style={{ background: 'transparent', fontSize: 16 }}
                   autoFocus
                   value={editingItemText}
                   onChange={(e) => setEditingItemText(e.target.value)}
-                  onBlur={() => {
-                    const next = editingItemText.trim();
+                  onBlur={(e) => {
+                    const next = e.currentTarget.value.trim();
                     if (next && next !== i.name) renameItem.mutate({ itemId: i.id, name: next });
                     setEditingItemId(null);
                   }}
@@ -358,8 +359,12 @@ export default function ListEditor() {
               )}
               <div style={{ display: 'flex', gap: 6, marginLeft: 'auto', alignItems: 'center' }}>
                 <span className="badge">{i.qty} {i.unit}</span>
-                <button className="interactive-btn" type="button" onClick={() => dec.mutate({ itemId: i.id })}>-</button>
-                <button className="interactive-btn" type="button" onClick={() => inc.mutate({ itemId: i.id })}>+</button>
+                <button className="interactive-btn" type="button" onClick={() => dec.mutate({ itemId: i.id })}>
+                  <span style={{ display: 'inline-block', transform: 'scale(1.5)', transformOrigin: 'center', lineHeight: 0, fontWeight: 'normal' }}>-</span>
+                </button>
+                <button className="interactive-btn" type="button" onClick={() => inc.mutate({ itemId: i.id })}>
+                  <span style={{ display: 'inline-block', transform: 'scale(1.5)', transformOrigin: 'center', lineHeight: 0, fontWeight: 'normal' }}>+</span>
+                </button>
               </div>
             </li>
           ))}
