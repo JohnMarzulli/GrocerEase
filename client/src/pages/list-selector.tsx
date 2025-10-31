@@ -1,4 +1,4 @@
-import { getListItemCount, getListItemsRemainingCount, getListName, groceryListManager, getItemsText } from '@/core/grocery-list-manager';
+import { getItemsText, getListItemCount, getListName, groceryListManager, sortListItems } from '@/core/grocery-list-manager';
 import { useCreateList, useLists } from '@/services/hooks';
 import { useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -58,7 +58,7 @@ export default function ListSelector() {
                 paddingBottom: 'calc(env(safe-area-inset-bottom) + 64px)',
               }}
             >
-              {availableLists.sort((a, b) => getListItemsRemainingCount(b) - getListItemsRemainingCount(a)).map((listId) => (
+              {availableLists.sort((a, b) => sortListItems(a, b)).map((listId) => (
                 <div key={listId} style={{ display: 'flex', alignItems: 'stretch', width: '90%', gap: '0.5rem' }}>
                   <button
                     className="danger-tile"

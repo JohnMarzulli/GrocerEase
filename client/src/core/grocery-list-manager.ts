@@ -167,11 +167,47 @@ export function getItemsText(
     const itemRemainingCount: number = getListItemsRemainingCount(listId);
     const itemTotalCount: number = getListItemCount(listId);
 
-    if (itemRemainingCount === 0) {
-        return noItems;
+    let text: string = '';
+
+    if (itemTotalCount === 0) {
+        text = noItems;
+    } else if (itemRemainingCount === 0) {
+        text = 'Finished';
+    } else {
+        text = `${itemRemainingCount}/${itemTotalCount} :Remaining`;
     }
 
-    return `(${itemRemainingCount}/${itemTotalCount} :Remaining)`;
+    return `(${text})`;
+}
+
+/**
+ * Sort the list so that:
+ * Lists with the most remaining items appear first.
+ * Lists with the most total items appear next.
+ * Finally, sort alphabetically by list name.
+ * @param listA The first list to compare.
+ * @param listB The second list to compare.
+ * @returns The relative order of the two lists.
+ */
+export function sortListItems(
+    listA: string,
+    listB: string
+) {
+    const aRemaining = getListItemsRemainingCount(listA);
+    const bRemaining = getListItemsRemainingCount(listB);
+
+    if (aRemaining !== bRemaining) {
+        return bRemaining - aRemaining;
+    }
+
+    const aTotal = getListItemCount(listA);
+    const bTotal = getListItemCount(listB);
+
+    if (aTotal !== bTotal) {
+        return bTotal - aTotal;
+    }
+
+    return getListName(listA).localeCompare(getListName(listB));
 }
 
 export const groceryListManager = new GroceryListManager();
