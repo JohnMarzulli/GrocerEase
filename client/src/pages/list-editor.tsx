@@ -20,7 +20,7 @@ export default function ListEditor() {
   const { data: _list, isLoading, error } = useList(id, { enabled: !!id });
 
   const [editingName, setEditingName] = useState(false);
-  const [nameInput, setNameInput] = useState('');
+  const [nameInput, setListNameInput] = useState('');
   const nameInputRef = useRef<HTMLInputElement | null>(null);
 
 
@@ -237,9 +237,9 @@ export default function ListEditor() {
           <input
             ref={nameInputRef}
             className="input"
-            style={{ fontSize: 28, textAlign: 'center', width: '100%', background: 'transparent' }}
+            style={{ fontSize: 28, textAlign: 'center', width: '75%', background: 'transparent' }}
             value={nameInput}
-            onChange={(e) => setNameInput(e.target.value)}
+            onChange={(e) => setListNameInput(e.target.value)}
             onBlur={handleListNameCommit}
             onKeyDown={(e) => {
               if (e.key === 'Enter') (e.target as HTMLInputElement).blur();
@@ -255,7 +255,7 @@ export default function ListEditor() {
                 if (timer) window.clearTimeout(timer);
                 timer = window.setTimeout(() => {
                   timer = null;
-                  setNameInput(list ? list.name : 'Grocery List');
+                  setListNameInput(list ? list.name : 'Grocery List');
                   setEditingName(true);
                 }, 500);
               };
@@ -287,13 +287,13 @@ export default function ListEditor() {
       <main className="content">
         <form onSubmit={onSubmit} style={{ display: 'flex', gap: 8 }}>
           <input
-            className="input"
+            className="item-input"
             style={{ fontSize: 16 }}
             value={text}
             onChange={(e) => setText(e.target.value)}
             placeholder="New Item Name"
           />
-          <button className="button" type="submit" disabled={addItem.isPending}>
+          <button className="add-button" type="submit" disabled={addItem.isPending}>
             {addItem.isPending ? 'Adding…' : 'Add'}
           </button>
         </form>
