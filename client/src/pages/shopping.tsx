@@ -31,8 +31,13 @@ export default function Shopping() {
                 className="interactive-btn"
                 type="checkbox"
                 checked={i.status === 'completed'}
-                onChange={() => {
-                  list.itemAcquired(i.id);
+                onChange={(e) => {
+                  const isChecked = e.currentTarget.checked;
+                  if (isChecked) {
+                    list.itemAcquired(i.id);
+                  } else {
+                    list.putItemBack(i.id);
+                  }
                   navigate(0);
                 }}
               />

@@ -156,6 +156,24 @@ export class GroceryList {
     }
 
     /**
+     * Un-marks the item, like it was put back on the shelf.
+     * @param itemId The item that is no longer in our basket.
+     * @returns The updated item
+     */
+    public putItemBack(
+        itemId: string
+    ): ListItem | undefined {
+        const item: ListItem | undefined = this.findItemById(itemId);
+
+        if (item) {
+            item.status = 'pending';
+            this.save();
+        }
+
+        return item;
+    }
+
+    /**
      * Marks an item as acquired by its item id.
      * @param itemId The uuid of the list item to mark as acquired.
      * @returns The updated list item.
