@@ -21,8 +21,8 @@ export default function ListSelector() {
     <div className="mobile-shell">
       <header className="header" style={{ textAlign: 'center', fontSize: '3rem', paddingBottom: '5%' }}>GrocerEase</header>
       <button
-        className="tile"
-        style={{ width: '75%', alignItems: 'center', margin: '0 auto' }}
+        className="create-tile"
+        style={{ width: '90%', alignItems: 'center', margin: '0 auto' }}
         onClick={() => goToList(crypto.randomUUID())}>Create New List</button>
       <main className="content">
         <section className="grid2" style={{ display: 'flex', justifyContent: 'center' }}>
@@ -59,10 +59,9 @@ export default function ListSelector() {
               }}
             >
               {availableLists.sort((a, b) => sortListItems(a, b)).map((listId) => (
-                <div key={listId} style={{ display: 'flex', alignItems: 'stretch', width: '90%', gap: '0.5rem' }}>
+                <div key={listId} style={{ display: 'flex', width: '90%', gap: '0.5rem' }}>
                   <button
                     className="danger-tile"
-                    style={{ whiteSpace: 'nowrap', height: '10%', alignSelf: 'center' }}
                     onClick={() => {
                       groceryListManager.removeList(listId);
                       navigate(0);
@@ -73,8 +72,8 @@ export default function ListSelector() {
                     X
                   </button>
                   <button
-                    className="tile"
-                    style={{ flex: 1, width: '100%', whiteSpace: 'wrap', color: getListItemCount(listId) > 0 ? 'inherit' : 'gray', textOverflow: 'ellipsis', overflow: 'hidden' }}
+                    className="list-entry-tile"
+                    style={{ width: '100%', color: getListItemCount(listId) > 0 ? 'inherit' : 'gray', textOverflow: 'ellipsis', overflow: 'hidden' }}
                     onClick={() => goToList(listId)}
                   >
                     {getListName(listId)}<br />

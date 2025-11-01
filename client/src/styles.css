@@ -62,19 +62,41 @@ body {
   font-weight: 600
 }
 
-.danger-tile {
+.create-tile {
   background: #17344f;
-  color: #df0c0c;
-  border: 10px solid #df0c0c;
-  border-radius: 100%;
-  display: flex;
-  align-items: center;
+  color: #e3f6f1;
+  border: 4px solid #24516f;
+  border-radius: 5%;
   justify-content: center;
   vertical-align: center;
-  min-height: 60px;
-  min-width: 60px;
+  padding-top: 4%;
+  padding-bottom: 4%;
   font-size: 18px;
   font-weight: 600
+}
+
+.list-entry-tile {
+  background: #17344f;
+  color: #e3f6f1;
+  border: 1px solid #24516f;
+  border-radius: 5%;
+  justify-content: center;
+  vertical-align: center;
+  font-size: 18px;
+  font-weight: 600
+}
+
+.danger-tile {
+  background: #17344f;
+  color: var(--accent);
+  border: 4px solid;
+  border-color: var(--bg);
+  border-radius: 50%;
+  justify-content: center;
+  min-height: 60px;
+  min-width: 60px;
+  font-style: normal;
+  font-size: xx-large;
 }
 
 .button {

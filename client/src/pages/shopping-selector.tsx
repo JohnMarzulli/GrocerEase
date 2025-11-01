@@ -1,4 +1,4 @@
-import { getItemsText, getListItemCount, getListName, groceryListManager, sortListItems } from '@/core/grocery-list-manager';
+import { getItemsText, getListItemCount, getListItemsRemainingCount, getListName, groceryListManager, sortListItems } from '@/core/grocery-list-manager';
 import { useCreateList, useLists } from '@/services/hooks';
 import { useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -57,8 +57,8 @@ export default function ShoppingSelector() {
               {availableLists.filter((listId) => getListItemCount(listId) > 0).sort((a, b) => sortListItems(a, b)).map((listId) => (
                 <div key={listId} style={{ display: 'flex', alignItems: 'stretch', width: '90%', gap: '0.5rem' }}>
                   <button
-                    className="tile"
-                    style={{ flex: 1, width: '100%', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}
+                    className="list-entry-tile"
+                    style={{ flex: 1, width: '100%', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden', color: getListItemsRemainingCount(listId) > 0 ? 'inherit' : 'gray' }}
                     onClick={() => goToList(listId)}
                   >
                     {getListName(listId)}<br />
