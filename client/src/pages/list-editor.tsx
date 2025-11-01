@@ -238,19 +238,9 @@ export default function ListEditor() {
           <input
             ref={nameInputRef}
             className="input"
-            type="text"
-            inputMode="text"
-            enterKeyHint="done"
-            autoCapitalize="words"
-            autoCorrect="on"
-            autoFocus
             style={{ fontSize: 28, textAlign: 'center', width: '75%', background: 'transparent' }}
             value={nameInput}
             onChange={(e) => setListNameInput(e.target.value)}
-            onFocus={() => {
-              nameInputRef.current?.select();
-              (navigator as any).virtualKeyboard?.show?.();
-            }}
             onBlur={handleListNameCommit}
             onKeyDown={(e) => {
               if (e.key === 'Enter') (e.target as HTMLInputElement).blur();
@@ -268,12 +258,6 @@ export default function ListEditor() {
                   timer = null;
                   setListNameInput(list ? list.name : 'Grocery List');
                   setEditingName(true);
-                  // Try to bring up the soft keyboard on mobile immediately
-                  setTimeout(() => {
-                    nameInputRef.current?.focus();
-                    nameInputRef.current?.select();
-                    (navigator as any).virtualKeyboard?.show?.();
-                  }, 0);
                 }, 500);
               };
 
