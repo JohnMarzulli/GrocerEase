@@ -1,10 +1,8 @@
-import { encodeBase64Url } from '@/core/encoding';
+import { compressData } from '@/core/encoding';
 import { getValidListIdFromQueryParams, groceryListManager } from '@/core/grocery-list-manager';
 import { useToast } from '@/state/toast';
-import { useLocation } from 'react-router-dom';
 
 export default function ShareButton() {
-    const loc = useLocation();
     const listIdFromQs = getValidListIdFromQueryParams();
     const { show } = useToast();
 
@@ -12,8 +10,8 @@ export default function ShareButton() {
         try {
             const list = groceryListManager.getList(listIdFromQs).getList();
             const json = JSON.stringify(list);
-            const encoded = encodeBase64Url(json);
-            const link = `${location.origin}/import?id=${encodeURIComponent(list.id)}&data=${encodeURIComponent(encoded)}`;
+            const compressed = await compressData(json);
+            const link = `${location.origin}/import?data=${encodeURIComponent(compressed)}`;
 
             await navigator.clipboard.writeText(link);
 
