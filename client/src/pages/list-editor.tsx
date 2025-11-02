@@ -211,7 +211,7 @@ export default function ListEditor() {
   if (!id || isLoading) {
     return (
       <div className="mobile-shell" style={{ display: 'flex', flexDirection: 'column', height: '100vh', maxHeight: '100vh', overflow: 'hidden' }}>
-        <div style={{ 
+        <div style={{
           backgroundColor: 'var(--vscode-editor-background)',
           position: 'sticky',
           top: 0,
@@ -253,8 +253,8 @@ export default function ListEditor() {
   if (error) {
     return (
       <div className="mobile-shell" style={{ display: 'flex', flexDirection: 'column', height: '100vh', maxHeight: '100vh', overflow: 'hidden' }}>
-        <header className="header" style={{ 
-          textAlign: 'center', 
+        <header className="header" style={{
+          textAlign: 'center',
           fontSize: 32,
           position: 'sticky',
           top: 0,
@@ -277,7 +277,7 @@ export default function ListEditor() {
   return (
     <div className="mobile-shell" style={{ display: 'flex', flexDirection: 'column', height: '100vh', maxHeight: '100vh', overflow: 'hidden' }}>
       {/* Fixed header */}
-      <div style={{ 
+      <div style={{
         backgroundColor: 'var(--vscode-editor-background)',
         position: 'sticky',
         top: 0,
@@ -348,13 +348,16 @@ export default function ListEditor() {
       </div>
 
       {/* Scrollable content */}
-      <div className="content" style={{ 
+      <div className="content scrollable-content" style={{
         flex: 1,
-        overflowY: 'auto',
-        WebkitOverflowScrolling: 'touch',
+        overflowY: 'scroll',
         padding: '0 16px'
       }}>
-        <ul className="list" ref={listRef}>
+        <ul className="list" ref={listRef}
+          style={{
+            touchAction: 'pan-y', // Enable vertical touch scrolling
+            WebkitOverflowScrolling: 'touch'
+          }}>
           {(list?.items ?? []).map((i) => (
             <li
               key={i.id}
@@ -405,11 +408,14 @@ export default function ListEditor() {
                     document.addEventListener('pointercancel', cancel, { once: true });
                   }}
                   onContextMenu={(e) => e.preventDefault()}
-                  style={{ 
-                    textDecoration: i.status === 'completed' ? 'line-through' : 'none', 
-                    color: (i.status === 'completed' ? 'gray' : ''), 
-                    userSelect: 'none', 
-                    cursor: 'default' 
+                  style={{
+                    textDecoration: i.status === 'completed' ? 'line-through' : 'none',
+                    color: (i.status === 'completed' ? 'gray' : ''),
+                    userSelect: 'none',
+                    cursor: 'default',
+                    touchAction: 'pan-y', // Enable vertical touch scrolling
+                    flex: 1, // Take up available space
+                    minWidth: 0 // Allow text truncation
                   }}
                   title="Long-press to rename"
                 >

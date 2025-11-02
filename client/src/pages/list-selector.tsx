@@ -36,30 +36,39 @@ export default function ListSelector() {
             }}
           >
             <div
-              className="list-scroll"
+              className="scrollable-content"
               style={{
                 width: '100%',
                 height: '100%',
                 minHeight: '75vh',
                 flex: 1,
-                overflowY: 'auto',
-                direction: 'rtl',
-                scrollbarColor: '#519b54ff transparent',
-                scrollbarWidth: 'thin',
-                scrollbarGutter: 'stable',
-                scrollMarginLeft: '0.5rem',
-                scrollMarginRight: '0.5rem',
+                scrollbarColor: 'var(--accent)',
                 WebkitOverflowScrolling: 'touch',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
                 gap: '1.0rem',
                 // leave space so the footer "Home" button never overlaps
-                paddingBottom: 'calc(env(safe-area-inset-bottom) + 64px)',
+                paddingBottom: 'calc(env(safe-area-inset-bottom) + 64px)'
               }}
             >
               {availableLists.sort((a, b) => sortListItems(a, b)).map((listId) => (
                 <div key={listId} style={{ display: 'flex', width: '90%', gap: '0.5rem' }}>
+                  <button
+                    className="list-entry-tile"
+                    style={{
+                      width: '100%',
+                      color: getListItemCount(listId) > 0 ? 'inherit' : 'gray',
+                      textOverflow: 'ellipsis',
+                      overflow: 'hidden',
+                      touchAction: 'pan-y', // Enable vertical touch scrolling
+                      cursor: 'pointer'
+                    }}
+                    onClick={() => goToList(listId)}
+                  >
+                    {getListName(listId)}<br />
+                    {getItemsText(listId)}
+                  </button>
                   <button
                     className="danger-tile"
                     onClick={() => {
@@ -70,14 +79,6 @@ export default function ListSelector() {
                     title="Remove list"
                   >
                     X
-                  </button>
-                  <button
-                    className="list-entry-tile"
-                    style={{ width: '100%', color: getListItemCount(listId) > 0 ? 'inherit' : 'gray', textOverflow: 'ellipsis', overflow: 'hidden' }}
-                    onClick={() => goToList(listId)}
-                  >
-                    {getListName(listId)}<br />
-                    {getItemsText(listId)}
                   </button>
                 </div>
               ))}

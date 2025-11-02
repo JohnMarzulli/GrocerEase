@@ -1,5 +1,5 @@
-import { getValidListIdFromQueryParams, groceryListManager } from '@/core/grocery-list-manager';
 import GroceryList from '@/core/grocery-list';
+import { getValidListIdFromQueryParams, groceryListManager } from '@/core/grocery-list-manager';
 import { useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -23,7 +23,7 @@ export default function Shopping() {
       <header className="header" style={{ textAlign: 'center', fontSize: 32 }}>
         {list.getListName()}
       </header>
-      <main className="content">
+      <main className="content scrollable-content">
         <ul className="list" ref={listRef}>
           {(listItems ?? []).map((i) => (
             <li key={i.id} data-item-id={i.id} style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: '150%' }}>
