@@ -27,19 +27,30 @@ body {
 .mobile-shell {
   max-width: 420px;
   margin: 0 auto;
-  min-height: 100%;
+  height: 100vh;
   display: flex;
-  flex-direction: column
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
 }
 
 .header {
   padding: 16px 16px 8px;
   font-weight: 700;
-  letter-spacing: .2px
+  letter-spacing: .2px;
+  background-color: var(--bg);
+  position: sticky;
+  top: 0;
+  z-index: 2;
 }
 
 .content {
-  padding: 0 16px 80px
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 0 16px;
+  margin-bottom: 64px;
+  /* Space for footer */
 }
 
 .grid2 {
@@ -137,8 +148,9 @@ body {
 
 .list {
   list-style: none;
-  margin: 8px 0 0;
-  padding: 0
+  margin: 8px 0 72px 0;
+  /* Extra bottom margin for footer */
+  padding: 0;
 }
 
 .list-scroll {
@@ -229,7 +241,9 @@ body {
   right: 0;
   bottom: 0;
   padding: 8px 16px 16px;
-  background: linear-gradient(180deg, transparent, rgba(11, 29, 45, .75) 30%, rgba(11, 29, 45, 1) 60%)
+  background: var(--bg);
+  border-top: 1px solid var(--line);
+  z-index: 10;
 }
 
 .footer-bar {
@@ -247,6 +261,7 @@ body {
   padding: 10px 16px;
   font-weight: 600;
   text-decoration: none;
+  font-size: 80%;
 }
 
 .adjustment-btn {

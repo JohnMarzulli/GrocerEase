@@ -20,9 +20,8 @@ export default function ListEditor() {
   const { data: _list, isLoading, error } = useList(id, { enabled: !!id });
 
   const [editingName, setEditingName] = useState(false);
-  const [nameInput, setListNameInput] = useState('');
+  const [nameInput, setNameInput] = useState('');
   const nameInputRef = useRef<HTMLInputElement | null>(null);
-
 
   useEffect(() => {
     if (editingName && nameInputRef.current) {
@@ -30,8 +29,6 @@ export default function ListEditor() {
       nameInputRef.current.select();
     }
   }, [editingName]);
-
-  // simple inline rename UI
 
   const list = _list;
 
@@ -108,7 +105,6 @@ export default function ListEditor() {
       // move floating preview if present
       const floatEl = floatingRef.current;
       if (floatEl) {
-        const x = floatEl.getBoundingClientRect().left;
         const top = (e.clientY ?? 0) - dragOffsetRef.current;
         floatEl.style.transform = `translateY(${top - floatEl.getBoundingClientRect().top}px)`;
         floatEl.style.top = `${top}px`;
@@ -210,15 +206,61 @@ export default function ListEditor() {
     if (!name) return;
     addItem.mutate({ name }, { onSuccess: () => setText('') });
   };
-  // Skeleton while loading or creating a new list
+
+  // Loading skeleton
   if (!id || isLoading) {
-    return listLoadingSkeleton;
+    return (
+      <div className="mobile-shell" style={{ display: 'flex', flexDirection: 'column', height: '100vh', maxHeight: '100vh', overflow: 'hidden' }}>
+        <div style={{ 
+          backgroundColor: 'var(--vscode-editor-background)',
+          position: 'sticky',
+          top: 0,
+          zIndex: 2
+        }}>
+          <header className="header" style={{ textAlign: 'center', fontSize: 32 }}>
+            <div className="skel-line shimmer" style={{ width: '50%', height: 32, margin: '0 auto' }} />
+          </header>
+
+          <div style={{ padding: '0 16px 8px 16px' }}>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <div className="skel-input shimmer" />
+              <div className="skel-chip shimmer" />
+            </div>
+          </div>
+        </div>
+
+        <div className="content" style={{ flex: 1, overflowY: 'auto' }}>
+          <ul className="list">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <li key={i}>
+                <div className="skel-line shimmer" style={{ width: '60%' }} />
+                <div className="skel-line shimmer" style={{ width: 48, height: 14, marginLeft: 'auto' }} />
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="footer">
+          <div className="footer-bar">
+            <span className="skel-chip shimmer" />
+          </div>
+        </div>
+      </div>
+    );
   }
 
+  // Error state
   if (error) {
     return (
-      <div className="mobile-shell">
-        <header className="header" style={{ textAlign: 'center', fontSize: 32 }}>
+      <div className="mobile-shell" style={{ display: 'flex', flexDirection: 'column', height: '100vh', maxHeight: '100vh', overflow: 'hidden' }}>
+        <header className="header" style={{ 
+          textAlign: 'center', 
+          fontSize: 32,
+          position: 'sticky',
+          top: 0,
+          backgroundColor: 'var(--vscode-editor-background)',
+          zIndex: 2
+        }}>
           <span>Failed to load list</span>
           <br />
           <br />
@@ -231,74 +273,87 @@ export default function ListEditor() {
     );
   }
 
+  // Main view
   return (
-    <div className="mobile-shell">
-      <header className="header" style={{ textAlign: 'center', fontSize: 32 }}>
-        {editingName ? (
-          <input
-            ref={nameInputRef}
-            className="input"
-            style={{ fontSize: 28, textAlign: 'center', width: '75%', background: 'transparent' }}
-            value={nameInput}
-            onChange={(e) => setListNameInput(e.target.value)}
-            onBlur={handleListNameCommit}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') (e.target as HTMLInputElement).blur();
-              if (e.key === 'Escape') setEditingName(false);
-            }}
-          />
-        ) : (
-          <>
-            {(() => {
-              let timer: number | null = null;
+    <div className="mobile-shell" style={{ display: 'flex', flexDirection: 'column', height: '100vh', maxHeight: '100vh', overflow: 'hidden' }}>
+      {/* Fixed header */}
+      <div style={{ 
+        backgroundColor: 'var(--vscode-editor-background)',
+        position: 'sticky',
+        top: 0,
+        zIndex: 2,
+        padding: '16px 16px 0 16px'
+      }}>
+        <header className="header" style={{ textAlign: 'center', fontSize: 32 }}>
+          {editingName ? (
+            <input
+              ref={nameInputRef}
+              className="input"
+              style={{ fontSize: 28, textAlign: 'center', width: '100%', background: 'transparent' }}
+              value={nameInput}
+              onChange={(e) => setNameInput(e.target.value)}
+              onBlur={handleListNameCommit}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') (e.target as HTMLInputElement).blur();
+                if (e.key === 'Escape') setEditingName(false);
+              }}
+            />
+          ) : (
+            <span
+              onPointerDown={() => {
+                let timer: number | null = null;
+                const start = () => {
+                  if (timer) window.clearTimeout(timer);
+                  timer = window.setTimeout(() => {
+                    timer = null;
+                    setNameInput(list ? list.name : 'Grocery List');
+                    setEditingName(true);
+                  }, 500);
+                };
+                const cancel = () => {
+                  if (timer) {
+                    window.clearTimeout(timer);
+                    timer = null;
+                  }
+                };
+                start();
+                document.addEventListener('pointerup', cancel, { once: true });
+                document.addEventListener('pointerleave', cancel, { once: true });
+                document.addEventListener('pointercancel', cancel, { once: true });
+              }}
+              onContextMenu={(e) => e.preventDefault()}
+              style={{ userSelect: 'none', cursor: 'default' }}
+              title="Long-press to rename"
+            >
+              {list ? list.name : 'Grocery List'}
+            </span>
+          )}
+        </header>
 
-              const start = () => {
-                if (timer) window.clearTimeout(timer);
-                timer = window.setTimeout(() => {
-                  timer = null;
-                  setListNameInput(list ? list.name : 'Grocery List');
-                  setEditingName(true);
-                }, 500);
-              };
+        {/* Fixed input form */}
+        <div style={{ padding: '8px 0' }}>
+          <form onSubmit={onSubmit} style={{ display: 'flex', gap: 8 }}>
+            <input
+              className="input"
+              style={{ fontSize: 16 }}
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              placeholder="New Item Name"
+            />
+            <button className="button" type="submit" disabled={addItem.isPending}>
+              {addItem.isPending ? 'Adding…' : 'Add'}
+            </button>
+          </form>
+        </div>
+      </div>
 
-              const cancel = () => {
-                if (timer) {
-                  window.clearTimeout(timer);
-                  timer = null;
-                }
-              };
-
-              return (
-                <span
-                  onPointerDown={start}
-                  onPointerUp={cancel}
-                  onPointerLeave={cancel}
-                  onPointerCancel={cancel}
-                  onContextMenu={(e) => e.preventDefault()}
-                  style={{ userSelect: 'none', cursor: 'default' }}
-                  title="Long-press to rename"
-                >
-                  {list ? list.name : 'Grocery List'}
-                </span>
-              );
-            })()}
-          </>
-        )}
-      </header>
-      <main className="content">
-        <form onSubmit={onSubmit} style={{ display: 'flex', gap: 8 }}>
-          <input
-            className="item-input"
-            style={{ fontSize: 16 }}
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            placeholder="New Item Name"
-          />
-          <button className="add-button" type="submit" disabled={addItem.isPending}>
-            {addItem.isPending ? 'Adding…' : 'Add'}
-          </button>
-        </form>
-
+      {/* Scrollable content */}
+      <div className="content" style={{ 
+        flex: 1,
+        overflowY: 'auto',
+        WebkitOverflowScrolling: 'touch',
+        padding: '0 16px'
+      }}>
         <ul className="list" ref={listRef}>
           {(list?.items ?? []).map((i) => (
             <li
@@ -332,31 +387,34 @@ export default function ListEditor() {
                   }}
                 />
               ) : (
-                (() => {
-                  let t: number | null = null;
-                  const start = () => {
-                    if (t) clearTimeout(t);
-                    t = window.setTimeout(() => {
-                      t = null;
-                      setEditingItemId(i.id);
-                      setEditingItemText(i.name);
-                    }, 500);
-                  };
-                  const cancel = () => { if (t) { clearTimeout(t); t = null; } };
-                  return (
-                    <span
-                      onPointerDown={start}
-                      onPointerUp={cancel}
-                      onPointerLeave={cancel}
-                      onPointerCancel={cancel}
-                      onContextMenu={(e) => e.preventDefault()}
-                      style={{ textDecoration: i.status === 'completed' ? 'line-through' : 'none', color: (i.status === 'completed' ? 'gray' : ''), userSelect: 'none', cursor: 'default' }}
-                      title="Long-press to rename"
-                    >
-                      {i.name}
-                    </span>
-                  );
-                })()
+                <span
+                  onPointerDown={() => {
+                    let t: number | null = null;
+                    const start = () => {
+                      if (t) clearTimeout(t);
+                      t = window.setTimeout(() => {
+                        t = null;
+                        setEditingItemId(i.id);
+                        setEditingItemText(i.name);
+                      }, 500);
+                    };
+                    const cancel = () => { if (t) { clearTimeout(t); t = null; } };
+                    start();
+                    document.addEventListener('pointerup', cancel, { once: true });
+                    document.addEventListener('pointerleave', cancel, { once: true });
+                    document.addEventListener('pointercancel', cancel, { once: true });
+                  }}
+                  onContextMenu={(e) => e.preventDefault()}
+                  style={{ 
+                    textDecoration: i.status === 'completed' ? 'line-through' : 'none', 
+                    color: (i.status === 'completed' ? 'gray' : ''), 
+                    userSelect: 'none', 
+                    cursor: 'default' 
+                  }}
+                  title="Long-press to rename"
+                >
+                  {i.name}
+                </span>
               )}
               <div style={{ display: 'flex', gap: 6, marginLeft: 'auto', alignItems: 'center' }}>
                 <span className="badge">{i.qty} {i.unit}</span>
@@ -373,8 +431,9 @@ export default function ListEditor() {
             </li>
           ))}
         </ul>
-      </main>
+      </div>
 
+      {/* Fixed footer */}
       <div className="footer">
         <div className="footer-bar">
           <Link className="interactive-btn" to="/" style={{ width: '25%', textAlign: 'center', alignContent: 'center', marginRight: 2 }}>Home</Link>
@@ -386,30 +445,3 @@ export default function ListEditor() {
     </div>
   );
 }
-
-const listLoadingSkeleton = (
-  <div className="mobile-shell">
-    <header className="header" style={{ textAlign: 'center', fontSize: 32 }}>
-      <div className="skel-line shimmer" style={{ width: '50%', height: 32, margin: '0 auto' }} />
-    </header>
-    <main className="content">
-      <div style={{ display: 'flex', gap: 8 }}>
-        <div className="skel-input shimmer" />
-        <div className="skel-chip shimmer" />
-      </div>
-      <ul className="list">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <li key={i}>
-            <div className="skel-line shimmer" style={{ width: '60%' }} />
-            <div className="skel-line shimmer" style={{ width: 48, height: 14, marginLeft: 'auto' }} />
-          </li>
-        ))}
-      </ul>
-    </main>
-    <div className="footer">
-      <div className="footer-bar">
-        <span className="skel-chip shimmer" />
-      </div>
-    </div>
-  </div>
-);
