@@ -8,11 +8,18 @@
             "/static/*"
         ]
     },
+    "globalHeaders": {
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "DENY",
+        "referrer-policy": "no-referrer",
+        "cache-control": "public, max-age=31536000, immutable"
+    },
     "routes": [
         {
-            "route": "/*",
-            "serve": "/index.html",
-            "statusCode": 200
+            "route": "/index.html",
+            "headers": {
+                "cache-control": "no-cache, no-store, must-revalidate"
+            }
         }
     ]
 }
