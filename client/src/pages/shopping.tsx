@@ -1,5 +1,6 @@
 import GroceryList from '@/core/grocery-list';
 import { getValidListIdFromQueryParams, groceryListManager } from '@/core/grocery-list-manager';
+import { compareListItems } from '@/services/types';
 import { useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -11,7 +12,9 @@ export default function Shopping() {
 
   // Resolve the actual list id via the manager using the guid
   const list: GroceryList = groceryListManager.getList(listId);
-  const listItems = list.getList().items;
+  let listItems = list.getList().items;
+
+  listItems = listItems.sort(compareListItems);
 
   const navigate = useNavigate();
 
