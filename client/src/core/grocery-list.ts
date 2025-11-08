@@ -1,4 +1,4 @@
-import type { List, ListItem } from '@/services/types';
+import { List, ListItem } from '@/services/types';
 import { isUuid } from './grocery-list-manager';
 
 /**
@@ -93,14 +93,13 @@ export class GroceryList {
         // Find max order and add 1, or use 0 if no items
         const maxOrder = this.list.items.reduce((max, item) => Math.max(max, item.order), -1);
 
-        const item: ListItem = {
-            id: crypto.randomUUID(),
-            name: name.trim(),
-            qty: Math.max(1, Number(qty) || 1),
-            unit: unit || 'ea',
-            status: 'pending',
-            order: maxOrder + 1
-        };
+        const item: ListItem = new ListItem(
+            crypto.randomUUID(),
+            name.trim(),
+            Math.max(1, Number(qty) || 1),
+            unit || 'ea',
+            'pending',
+            maxOrder + 1);
         this.list.items.unshift(item);
         this.sortItems();
         this.save();
@@ -278,7 +277,7 @@ export class GroceryList {
     }
 
     private sortItems(): void {
-        this.list.items.sort((a, b) => a.order - b.order);
+        this.list.items.sort((a, b) => a.compare(b));
     }
 
     private static createNewListWithId(
