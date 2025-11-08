@@ -1,12 +1,46 @@
+import { isUuid } from "@/core/grocery-list-manager";
+
 export type ListItemStatus = 'pending' | 'completed';
 
-export interface ListItem {
-  id: string;
-  name: string;
-  qty: number;
-  unit: string;
-  status: ListItemStatus;
-  order: number;
+export class ListItem {
+  constructor(
+    id: string,
+    name: string,
+    qty: number,
+    unit: string,
+    status: ListItemStatus,
+    order: number) {
+    if (!isUuid(id)) {
+      throw new Error(`Item id:'${id}' is not an UUID.`);
+    }
+
+    this.id = id;
+    this.name = name.trim();
+    this.qty = qty;
+    this.unit = unit;
+    this.status = status;
+    this.order = order;
+  }
+
+  public id: string = crypto.randomUUID();
+  public name: string = "New Item";
+  public qty: number = 1;
+  public unit: string = "ea";
+  public status: ListItemStatus = "pending";
+  public order: number = -1;
+
+  public isCompleted(): boolean { return this.status === 'completed'; };
+
+  public compare(
+    other: ListItem
+  ): number {
+    // Make sure completed items show at the bottom of the list.
+    if (this.isCompleted() !== other.isCompleted()) {
+      return this.isCompleted() ? -1 : 1;
+    }
+
+    return this.order - other.order;
+  }
 }
 
 export interface ListSummary {
