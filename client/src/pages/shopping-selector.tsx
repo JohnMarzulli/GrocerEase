@@ -3,6 +3,12 @@ import { useCreateList, useLists } from '@/services/hooks';
 import { useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
+function getListIdsToShow(listIds: string[]): string[] {
+  return listIds
+    .filter((listId) => getListItemCount(listId) > 0)
+    .sort((a, b) => sortListItems(a, b));
+}
+
 /**
  * Allows the user to select a list to edit, or to create a new one.
  * @returns the HTML to render.
@@ -16,6 +22,42 @@ export default function ShoppingSelector() {
   const goToList = useCallback((listId: string) => {
     navigate(`/shopping?id=${listId}`);
   }, [lists, create, navigate]);
+
+  function getHtmlForList(
+    listId: string
+  ) {
+    return (
+      <div key={listId} style={{ display: 'flex', alignItems: 'stretch', width: '90%', gap: '0.5rem' }}>
+        <button
+          className="list-entry-tile"
+          style={{ flex: 1, width: '100%', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden', color: getListItemsRemainingCount(listId) > 0 ? 'inherit' : 'gray' }}
+          onClick={() => goToList(listId)}
+        >
+          {getListName(listId)}<br />
+          {getItemsText(listId)}
+        </button>
+      </div>
+    );
+  }
+
+  function getListHtml(
+    listIds: string[]
+  ): any {
+    const listsToShow: string[] = getListIdsToShow(listIds);
+
+    if (listsToShow.length > 0) {
+      return listsToShow.map((listId) => getHtmlForList(listId));
+    }
+
+    return <div key='empty' style={{ display: 'flex', alignItems: 'stretch', width: '90%', gap: '0.5rem' }}>
+      <button
+        className="list-entry-tile"
+        style={{ flex: 1, width: '100%', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden', color: 'gray' }}
+      >
+        No Lists
+      </button>
+    </div>;
+  }
 
   return (
     <div className="mobile-shell">
@@ -54,18 +96,7 @@ export default function ShoppingSelector() {
                 paddingBottom: 'calc(env(safe-area-inset-bottom) + 64px)',
               }}
             >
-              {availableLists.filter((listId) => getListItemCount(listId) > 0).sort((a, b) => sortListItems(a, b)).map((listId) => (
-                <div key={listId} style={{ display: 'flex', alignItems: 'stretch', width: '90%', gap: '0.5rem' }}>
-                  <button
-                    className="list-entry-tile"
-                    style={{ flex: 1, width: '100%', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden', color: getListItemsRemainingCount(listId) > 0 ? 'inherit' : 'gray' }}
-                    onClick={() => goToList(listId)}
-                  >
-                    {getListName(listId)}<br />
-                    {getItemsText(listId)}
-                  </button>
-                </div>
-              ))}
+              {getListHtml(availableLists)}
             </div>
           </div>
         </section>
