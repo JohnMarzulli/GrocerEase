@@ -1,4 +1,4 @@
-import type { List, ListItem, ListSummary, ListsService } from '@/services/types';
+import { List, ListItem, ListSummary, ListsService } from '@/services/types';
 
 const nowIso = () => new Date().toISOString();
 
@@ -8,8 +8,8 @@ const seedLists: List[] = [
     name: 'Weekly Groceries',
     createdAt: nowIso(),
     items: [
-      { id: 'i-1', name: 'Bananas', qty: 6, unit: 'ea', status: 'pending', order: 0 },
-      { id: 'i-2', name: 'Milk', qty: 1, unit: 'gal', status: 'completed', order: 1 },
+      new ListItem(crypto.randomUUID(), 'Bananas', 6, 'ea', 'pending', 0),
+      new ListItem(crypto.randomUUID(), 'Milk', 1, 'gal', 'completed', 1),
     ],
   },
   {
@@ -17,7 +17,7 @@ const seedLists: List[] = [
     name: 'Party Supplies',
     createdAt: nowIso(),
     items: [
-      { id: 'i-3', name: 'Chips', qty: 3, unit: 'bag', status: 'pending', order: 0 },
+      new ListItem(crypto.randomUUID(), 'Chips', 3, 'bag', 'pending', 0),
     ],
   },
 ];
@@ -47,14 +47,13 @@ export class MockListsService implements ListsService {
     const list = this.lists.get(listId);
     if (!list) throw new Error('List not found');
     const maxOrder = list.items.reduce((max, i) => Math.max(max, i.order), -1);
-    const item: ListItem = {
-      id: `i-${Math.random().toString(36).slice(2, 9)}`,
+    const item: ListItem = new ListItem(
+      crypto.randomUUID(),
       name,
       qty,
       unit,
-      status: 'pending',
-      order: maxOrder + 1
-    };
+      'pending',
+      maxOrder + 1);
     list.items.unshift(item);
     return item;
   }
