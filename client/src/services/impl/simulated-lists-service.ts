@@ -91,6 +91,9 @@ export class SimulatedListsService implements ListsService {
     if (listId && listId !== l.id) throw new Error('List not found');
     const updated = this.groceryList.renameItemById(itemId, name);
     if (!updated) throw new Error('Item not found');
+
+    this.groceryList.save();
+
     return updated;
   }
 

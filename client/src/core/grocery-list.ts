@@ -30,6 +30,19 @@ export class GroceryList {
         }
     }
 
+    public constructor(
+        list: List
+    ) {
+        // Ensure all items have an order
+        list.items.forEach((item, index) => {
+            if (item.order === undefined) {
+                item.order = index;
+            }
+        });
+
+        this.list = list;
+    }
+
     /**
      * Gets the Id of the list.
      * @returns The uuid of the list.
@@ -245,7 +258,6 @@ export class GroceryList {
         if (!it) return undefined;
 
         it.name = (newName ?? '').trim() || it.name;
-        this.save();
 
         return it;
     }
@@ -333,19 +345,6 @@ export class GroceryList {
         safeLocalStorageSet(id, JSON.stringify(list));
 
         return new GroceryList(list);
-    }
-
-    private constructor(
-        list: List
-    ) {
-        // Ensure all items have an order
-        list.items.forEach((item, index) => {
-            if (item.order === undefined) {
-                item.order = index;
-            }
-        });
-
-        this.list = list;
     }
 
     private list: List;

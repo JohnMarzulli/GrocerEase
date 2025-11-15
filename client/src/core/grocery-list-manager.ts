@@ -64,21 +64,23 @@ export class GroceryListManager {
     public importList(
         listToImport: GroceryList
     ): GroceryList {
-        if (!this.isListAvailable(listToImport.getListId())) {
+        const listId: string = listToImport.getListId();
+
+        if (!this.isListAvailable(listId)) {
             listToImport.save();
 
             return listToImport;
         }
 
-        const existingList: GroceryList = this.getList(listToImport.getListId());
+        const existingList: GroceryList = this.getList(listId);
 
-        for (const item of listToImport.getList().items) {
-            const existingItemId: string | undefined = existingList.findItemInList(item.id, item.name);
+        for (const potentiallyNewItem of listToImport.getList().items) {
+            const existingItemId: string | undefined = existingList.findItemInList(potentiallyNewItem.id, potentiallyNewItem.name);
 
             if (existingItemId) {
-                existingList.renameItemById(existingItemId, item.name);
+                existingList.renameItemById(existingItemId, potentiallyNewItem.name);
             } else {
-                existingList.addItem(item.name, item.qty, item.unit);
+                existingList.addItem(potentiallyNewItem.name, potentiallyNewItem.qty, potentiallyNewItem.unit);
             }
         }
 
@@ -265,14 +267,7 @@ export function getListFromData(
         items: Array.isArray(parsed.items) ? parsed.items : [],
     };
 
-    // Persist the imported list to localStorage so we can construct a GroceryList instance
-    try {
-        localStorage.setItem(list.id, JSON.stringify(list));
-    } catch {
-        // ignore storage errors
-    }
-
-    return GroceryList.load(list.id);
+    return new GroceryList(list);
 }
 
 export const groceryListManager = new GroceryListManager();
