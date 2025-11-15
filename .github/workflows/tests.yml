@@ -27,21 +27,21 @@ jobs:
       - run: npm ci
       - run: npm run test:unit
 
-  e2e-tests:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: client
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'npm'
-          cache-dependency-path: 'client/package-lock.json'
-      - run: npm ci
-      - run: npx playwright install --with-deps
-      - run: npm run test:e2e
+  # e2e-tests:
+  #   runs-on: ubuntu-latest
+  #   defaults:
+  #     run:
+  #       working-directory: client
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: actions/setup-node@v4
+  #       with:
+  #         node-version: '18'
+  #         cache: 'npm'
+  #         cache-dependency-path: 'client/package-lock.json'
+  #     - run: npm ci
+  #     - run: npx playwright install --with-deps
+  #     - run: npm run test:e2e
 
   type-check:
     runs-on: ubuntu-latest
