@@ -1,5 +1,49 @@
 import { gunzipSync } from 'fflate';
 
+// Cross-platform base64 helpers: use browser `atob`/`btoa` when available,
+// otherwise fall back to Node's Buffer implementation so unit tests run under Node.
+function getNodeBuffer(): any | undefined {
+    // Prefer global Buffer if present
+    if (typeof (globalThis as any).Buffer !== 'undefined') return (globalThis as any).Buffer;
+
+    // Try to require the 'buffer' module (works in Node test runtimes)
+    try {
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        const mod = require('buffer');
+        return mod?.Buffer;
+    } catch {
+        return undefined;
+    }
+}
+
+function atobPoly(s: string): string {
+    if (typeof (globalThis as any).atob === 'function') {
+        return (globalThis as any).atob(s);
+    }
+
+    const nodeBuffer = getNodeBuffer();
+    if (nodeBuffer && typeof nodeBuffer.from === 'function') {
+        // decode to latin1/binary string so callers that expect char codes work
+        return nodeBuffer.from(s, 'base64').toString('latin1');
+    }
+
+    throw new Error('No base64 decoder available in this environment');
+}
+
+function btoaPoly(str: string): string {
+    if (typeof (globalThis as any).btoa === 'function') {
+        return (globalThis as any).btoa(str);
+    }
+
+    const nodeBuffer = getNodeBuffer();
+    if (nodeBuffer && typeof nodeBuffer.from === 'function') {
+        // encode from latin1/binary string
+        return nodeBuffer.from(str, 'latin1').toString('base64');
+    }
+
+    throw new Error('No base64 encoder available in this environment');
+}
+
 /**
  * Decodes a base64-encoded into a JSON object.
  * @param b64 The base 64 string to decode.
@@ -12,14 +56,26 @@ export function decodeBase64ToJson<T = any>(
     let s = b64.replace(/-/g, '+').replace(/_/g, '/');
     // pad
     while (s.length % 4) s += '=';
-    const decoded = atob(s);
+    const decoded = atobPoly(s);
 
     return JSON.parse(decoded) as T;
 }
 
 export function encodeBase64Url(str: string) {
     // unicode-safe base64
-    const b64 = btoa(unescape(encodeURIComponent(str)));
+    let b64: string;
+    if (typeof (globalThis as any).btoa === 'function') {
+        b64 = btoa(unescape(encodeURIComponent(str)));
+    } else {
+        const nodeBuffer = getNodeBuffer();
+        if (nodeBuffer && typeof nodeBuffer.from === 'function') {
+            // Node: use utf-8 directly
+            b64 = nodeBuffer.from(str, 'utf-8').toString('base64');
+        } else {
+            // fallback to the binary-safe helper using the encodeURIComponent trick
+            b64 = btoaPoly(unescape(encodeURIComponent(str)));
+        }
+    }
 
     return b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
@@ -37,7 +93,8 @@ export async function compressData(
 
     // Convert ArrayBuffer to base64 string
     const uint8Array = new Uint8Array(compressedBuffer);
-    const base64String = btoa(String.fromCharCode(...uint8Array));
+    const binaryStr = String.fromCharCode(...uint8Array);
+    const base64String = btoaPoly(binaryStr);
 
     return base64String;
 }
@@ -46,12 +103,23 @@ export async function compressData(
 export function decompressData(
     compressedBase64: string
 ): string {
+    // Some import payloads may be URL-encoded (contain %2F etc).
+    // Try to decode URL-encoded input first so atob receives a clean base64 string.
+    let maybeDecoded = compressedBase64;
+    try {
+        // decodeURIComponent will be a no-op if there are no percent-escapes
+        maybeDecoded = decodeURIComponent(compressedBase64);
+    } catch {
+        // leave as-is if decoding fails
+        maybeDecoded = compressedBase64;
+    }
+
     // normalize URL-safe base64 and pad
-    let s = compressedBase64.replace(/-/g, '+').replace(/_/g, '/');
+    let s = maybeDecoded.replace(/-/g, '+').replace(/_/g, '/');
     while (s.length % 4) s += '=';
 
     // Convert base64 to Uint8Array
-    const binaryString = atob(s);
+    const binaryString = atobPoly(s);
     const byteArray = new Uint8Array(binaryString.length);
     for (let i = 0; i < binaryString.length; i++) {
         byteArray[i] = binaryString.charCodeAt(i);
@@ -62,6 +130,18 @@ export function decompressData(
 
     // Decode to string
     return new TextDecoder().decode(decompressed);
+}
+
+export function getJsonFromImportData(data: string): any {
+    let parsed: any = {};
+
+    if (data.startsWith('ey')) {
+        parsed = decodeBase64ToJson<any>(data);
+    } else {
+        parsed = JSON.parse(decompressData(data));
+    }
+
+    return parsed;
 }
 
 

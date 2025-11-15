@@ -72,6 +72,31 @@ export class GroceryList {
     }
 
     /**
+     * Given a name OR id, find the item in the list.
+     * You may give the id or the name.
+     * @param itemId The uuid of the item to find. (optional)
+     * @param itemName The name of the item to find. (optional)
+     * @returns The item id if found, otherwise undefined.
+     */
+    public findItemInList(
+        itemId: string,
+        itemName: string
+    ): string | undefined {
+        const existingItemIndexById: number = this.list.items.findIndex(i => i.id === itemId);
+        const existingItemIndexByName: number = this.list.items.findIndex(i => i.name.toLocaleLowerCase() === itemName.toLocaleLowerCase());
+
+        if (existingItemIndexById !== -1) {
+            return this.list.items[existingItemIndexById].id;
+        }
+
+        if (existingItemIndexByName !== -1) {
+            return this.list.items[existingItemIndexByName].id;
+        }
+
+        return undefined;
+    }
+
+    /**
      * Attempts to add an item to the list.
      * If the item already exists (by name), then the quantity is increased instead.
      * @param name The name of the item to add.

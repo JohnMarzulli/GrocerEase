@@ -1,8 +1,8 @@
-import * as encoding from '@/core/encoding';
-import { isUuid } from '@/core/grocery-list-manager';
+import { GroceryList } from '@/core/grocery-list';
+import { getListFromData, groceryListManager } from '@/core/grocery-list-manager';
 import { useToast } from '@/state/toast';
 import { useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 export default function ImportListPage() {
     const { search } = useLocation();
@@ -19,50 +19,28 @@ export default function ImportListPage() {
         }
 
         try {
-            let parsed: any = {};
-
-            if (data.startsWith('ey')) {
-                parsed = encoding.decodeBase64ToJson<any>(data);
-            } else {
-                parsed = JSON.parse(encoding.decompressData(data));
-            }
-
-            const listId: string = parsed?.id;
-
-            if (!listId || typeof listId !== 'string' || !isUuid(listId)) {
-                show('Imported data is missing a valid list ID');
-
-                return;
-            }
-
-            // Ensure parsed looks like a list
-            if (!parsed || typeof parsed !== 'object' || !Array.isArray(parsed.items)) {
-                show('Imported data is not a valid grocery list');
-
-                return;
-            }
-
             // Normalize: override id and ensure createdAt
-            const list = {
-                ...parsed,
-                id: parsed.id,
-                createdAt: parsed.createdAt ?? new Date().toISOString(),
-                items: Array.isArray(parsed.items) ? parsed.items : [],
-            };
+            const list: GroceryList | null = getListFromData(data);
 
-            // Save to localStorage using the same key format as GroceryList
+            if (!list) {
+                show('Failed to import list.');
+
+                return;
+            }
+
             try {
-                localStorage.setItem(listId, JSON.stringify(list));
-                show('List imported');
-                // Navigate to shopping view with listId in query
-                nav(`/shopping?id=${encodeURIComponent(listId)}`);
+                const finalList: GroceryList = groceryListManager.importList(list);
+
+                show(`Imported "${finalList.getListName()}"`);
+
+                nav(`/shopping?id=${encodeURIComponent(finalList.getListId())}`);
             } catch (e) {
                 console.error(e);
                 show('Failed to save imported list');
             }
         } catch (e) {
             console.error(e);
-            show('Failed to decode import data');
+            show(`Failed to decode import data: ${e}`);
         }
     }, [search, nav, show]);
 
@@ -70,6 +48,11 @@ export default function ImportListPage() {
         <div className="mobile-shell" style={{ padding: 24 }}>
             <h2>Importing list…</h2>
             <p>If the import succeeds you will be redirected to the shopping view.</p>
+            <div className="footer">
+                <div className="footer-bar">
+                    <Link className="interactive-btn" to="/" style={{ width: '25%', textAlign: 'center', alignContent: 'center', marginRight: 2 }}>Home</Link>
+                </div>
+            </div>
         </div>
     );
 }

@@ -1,5 +1,5 @@
+import * as encoding from '@/core/encoding';
 import { GroceryList } from './grocery-list';
-
 
 /**
  * Top level management for grocery lists.
@@ -54,6 +54,37 @@ export class GroceryListManager {
         list.setListName(`New List`);
 
         return list;
+    }
+
+    /**
+     * Import a list. If the list already exists, merge the items.
+     * @param listToImport The list we want to import
+     * @returns The resulting list.
+     */
+    public importList(
+        listToImport: GroceryList
+    ): GroceryList {
+        if (!this.isListAvailable(listToImport.getListId())) {
+            listToImport.save();
+
+            return listToImport;
+        }
+
+        const existingList: GroceryList = this.getList(listToImport.getListId());
+
+        for (const item of listToImport.getList().items) {
+            const existingItemId: string | undefined = existingList.findItemInList(item.id, item.name);
+
+            if (existingItemId) {
+                existingList.renameItemById(existingItemId, item.name);
+            } else {
+                existingList.addItem(item.name, item.qty, item.unit);
+            }
+        }
+
+        existingList.save();
+
+        return existingList;
     }
 
     /**
@@ -208,6 +239,40 @@ export function sortListItems(
     }
 
     return getListName(listA).localeCompare(getListName(listB));
+}
+
+export function getListFromData(
+    data: string
+): GroceryList | null {
+    let parsed: any = encoding.getJsonFromImportData(data);
+
+    const listId: string = parsed?.id;
+
+    if (!listId || typeof listId !== 'string' || !isUuid(listId)) {
+        return null;
+    }
+
+    // Ensure parsed looks like a list
+    if (!parsed || typeof parsed !== 'object' || !Array.isArray(parsed.items)) {
+        return null;
+    }
+
+    // Normalize: override id and ensure createdAt
+    const list = {
+        ...parsed,
+        id: parsed.id,
+        createdAt: parsed.createdAt ?? new Date().toISOString(),
+        items: Array.isArray(parsed.items) ? parsed.items : [],
+    };
+
+    // Persist the imported list to localStorage so we can construct a GroceryList instance
+    try {
+        localStorage.setItem(list.id, JSON.stringify(list));
+    } catch {
+        // ignore storage errors
+    }
+
+    return GroceryList.load(list.id);
 }
 
 export const groceryListManager = new GroceryListManager();
