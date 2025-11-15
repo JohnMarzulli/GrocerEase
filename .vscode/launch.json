@@ -20,13 +20,28 @@
             ]
         },
         {
-            "name": "Test",
+            "name": "Unit Tests",
             "type": "node",
             "request": "launch",
             "runtimeExecutable": "npm",
             "runtimeArgs": [
                 "run",
                 "test"
+            ],
+            "cwd": "${workspaceFolder}/client",
+            "console": "integratedTerminal",
+            "skipFiles": [
+                "<node_internals>/**"
+            ]
+        },
+        {
+            "name": "UI Tests",
+            "type": "node",
+            "request": "launch",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": [
+                "run",
+                "test:ui"
             ],
             "cwd": "${workspaceFolder}/client",
             "console": "integratedTerminal",

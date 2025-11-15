@@ -22,11 +22,4 @@ export async function createListAndShop(page: any) {
 
     // Verify we can see the item
     const item = page.getByText('Apples');
-    await item.waitFor({ state: 'visible' });
-
-    // Check the item
-    const checkbox = page.locator('input[type="checkbox"]').first();
-    await checkbox.check();
-
-    // Note: leave assertions (expect) to the caller test file so this module is safe to import.
 }

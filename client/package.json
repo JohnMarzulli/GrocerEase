@@ -8,11 +8,8 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "vitest run",
-    "test:ui": "vitest run --ui",
-    "test:unit": "vitest run --reporter=verbose tests/unit",
-    "test:e2e": "playwright test --reporter=dot",
-    "test:e2e:ui": "playwright test --ui --reporter=dot"
+    "test": "vitest run --reporter=verbose",
+    "test:ui": "playwright test --reporter=dot"
   },
   "engines": {
     "node": ">=18.17.0"
