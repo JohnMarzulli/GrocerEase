@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { createListAndShop, openShoppingPage } from './shopping.spec';
+import { createListAndShop, openShoppingPage } from './shopping-tests-setup';
 
 test.describe('Shopping Page', () => {
     test('should display shopping page', async ({ page }) => {
