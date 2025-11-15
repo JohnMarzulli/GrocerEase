@@ -20,6 +20,21 @@
             ]
         },
         {
+            "name": "Test",
+            "type": "node",
+            "request": "launch",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": [
+                "run",
+                "test"
+            ],
+            "cwd": "${workspaceFolder}/client",
+            "console": "integratedTerminal",
+            "skipFiles": [
+                "<node_internals>/**"
+            ]
+        },
+        {
             "name": "Web: Chrome",
             "type": "chrome",
             "request": "launch",
