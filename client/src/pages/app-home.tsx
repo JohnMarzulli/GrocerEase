@@ -1,3 +1,4 @@
+import Version from '@/components/version';
 import { useCreateList, useLists } from '@/services/hooks';
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -23,6 +24,13 @@ export default function Home() {
           <button className="tile" style={{ width: '50%' }} onClick={() => navigate('/shopping-selector')}>Shop</button><br />
           <button className="tile" style={{ width: '50%' }} onClick={goToList}>Edit</button>
         </section>
+        <div className="footer">
+          <div className="footer-bar">
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <Version />
+            </div>
+          </div>
+        </div>
       </main>
     </div>
   );

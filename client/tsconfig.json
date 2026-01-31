@@ -2,7 +2,11 @@
   "compilerOptions": {
     "target": "ES2022",
     "useDefineForClassFields": true,
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "module": "ESNext",
     "skipLibCheck": true,
     "moduleResolution": "bundler",
@@ -13,15 +17,35 @@
     "strict": true,
     "baseUrl": ".",
     "paths": {
-      "@/components/*": ["src/components/*"],
-      "@/pages/*": ["src/pages/*"],
-      "@/services/*": ["src/services/*"],
-      "@/di/*": ["src/di/*"],
-      "@/state/*": ["src/state/*"],
-      "@/utils/*": ["src/utils/*"],
-      "@/core/*": ["src/core/*"]
+      "@/meta/*": [
+        "src/meta/*"
+      ],
+      "@/components/*": [
+        "src/components/*"
+      ],
+      "@/pages/*": [
+        "src/pages/*"
+      ],
+      "@/services/*": [
+        "src/services/*"
+      ],
+      "@/di/*": [
+        "src/di/*"
+      ],
+      "@/state/*": [
+        "src/state/*"
+      ],
+      "@/utils/*": [
+        "src/utils/*"
+      ],
+      "@/core/*": [
+        "src/core/*"
+      ]
     }
   },
-  "include": ["src", "vite-env.d.ts"],
+  "include": [
+    "src",
+    "vite-env.d.ts"
+  ],
   "references": []
 }
