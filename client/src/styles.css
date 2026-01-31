@@ -55,7 +55,7 @@ body {
 
 .scrollable-content {
   overflow-y: scroll !important;
-  
+
   /* Firefox */
   scrollbar-width: auto !important;
   scrollbar-color: var(--accent) transparent !important;
@@ -184,7 +184,8 @@ body {
   gap: 10px;
   padding: 10px 0;
   border-bottom: 1px solid var(--line);
-  touch-action: none;
+  /* Allow vertical touch scrolling when touching the list item; the drag handle itself still disables touch-action */
+  touch-action: pan-y;
   position: relative
 }
 

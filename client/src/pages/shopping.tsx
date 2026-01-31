@@ -27,7 +27,7 @@ export default function Shopping() {
         {list.getListName()}
       </header>
       <main className="content scrollable-content">
-        <ul className="list" ref={listRef}>
+        <ul className="list" ref={listRef} style={{ touchAction: 'pan-y', WebkitOverflowScrolling: 'touch' }}>
           {(listItems ?? []).map((i) => (
             <li key={i.id} data-item-id={i.id} style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: '150%' }}>
               <input
