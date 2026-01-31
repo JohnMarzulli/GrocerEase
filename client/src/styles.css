@@ -269,6 +269,16 @@ body {
   justify-content: center
 }
 
+.version-text {
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+
+.copyright-text {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
 .interactive-btn {
   background: #17344f;
   color: #e3f6f1;
