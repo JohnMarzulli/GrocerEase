@@ -2,13 +2,27 @@ import { TOKENS } from '@/di/tokens';
 import { useService } from '@/di/useService';
 import type { List, ListItem, ListsService } from '@/services/types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { isServerListId, addServerList } from '@/core/server-lists';
+import { useEffect } from 'react';
 
 const useListsService = (): ListsService => useService<ListsService>(TOKENS.ListsService);
 
 export function useLists() {
   const api = useListsService();
+  const { data, ...rest } = useQuery({ queryKey: ['lists'], queryFn: () => api.getLists() });
 
-  return useQuery({ queryKey: ['lists'], queryFn: () => api.getLists() });
+  // whenever we successfully fetch the summaries, make sure they're
+  // remembered in local storage. This keeps `isServerListId` accurate even
+  // if the user navigates back to a previously‑created server list on a
+  // fresh load.
+
+  useEffect(() => {
+    if (data && Array.isArray(data)) {
+      data.forEach((l) => addServerList(l));
+    }
+  }, [data]);
+
+  return { data, ...rest };
 }
 
 export function useCreateList() {
@@ -23,10 +37,18 @@ export function useCreateList() {
 
 export function useList(id?: string, opts?: { enabled?: boolean; }) {
   const api = useListsService();
+  const server = id ? isServerListId(id) : false;
 
   return useQuery<List>({
     queryKey: ['list', id],
-    queryFn: () => api.getList(id as string),
+    queryFn: async () => {
+      if (server) {
+        return api.getList(id as string);
+      }
+      // local: load from manager
+      const { groceryListManager } = await import('@/core/grocery-list-manager');
+      return groceryListManager.getList(id as string).getList();
+    },
     enabled: opts?.enabled ?? true,
     retry: false, // if not found, surface error immediately so UI can create a new list
   });
@@ -35,10 +57,18 @@ export function useList(id?: string, opts?: { enabled?: boolean; }) {
 export function useAddItem(id: string) {
   const api = useListsService();
   const qc = useQueryClient();
+  const server = isServerListId(id);
 
   return useMutation<ListItem, Error, { name: string; qty?: number; unit?: string; }>(
     {
-      mutationFn: ({ name, qty, unit }) => api.addItem(id, name, qty, unit),
+      mutationFn: async ({ name, qty, unit }) => {
+        if (server) {
+          return api.addItem(id, name, qty, unit);
+        } else {
+          const { groceryListManager } = await import('@/core/grocery-list-manager');
+          return groceryListManager.getList(id).addItem(name, qty, unit);
+        }
+      },
       onSuccess: () => {
         qc.invalidateQueries({ queryKey: ['list', id] });
       },
@@ -49,9 +79,22 @@ export function useAddItem(id: string) {
 export function useToggleItem(listId: string) {
   const api = useListsService();
   const qc = useQueryClient();
+  const server = isServerListId(listId);
 
   return useMutation<ListItem, Error, { itemId: string; }>({
-    mutationFn: ({ itemId }) => api.toggleItem(listId, itemId),
+    mutationFn: async ({ itemId }) => {
+      if (server) {
+        return api.toggleItem(listId, itemId);
+      } else {
+        const { groceryListManager } = await import('@/core/grocery-list-manager');
+        const list = groceryListManager.getList(listId);
+        const item = list.getList().items.find(i => i.id === itemId);
+        if (!item) throw new Error('Item not found');
+        item.status = item.status === 'pending' ? 'completed' : 'pending';
+        list.save();
+        return item as ListItem;
+      }
+    },
     onSuccess: () => qc.invalidateQueries({ queryKey: ['list', listId] }),
   });
 }
@@ -59,9 +102,19 @@ export function useToggleItem(listId: string) {
 export function useRenameList(listId: string) {
   const api = useListsService();
   const qc = useQueryClient();
+  const server = isServerListId(listId);
 
   return useMutation<List, Error, { name: string; }>({
-    mutationFn: ({ name }) => api.updateListName(listId, name),
+    mutationFn: async ({ name }) => {
+      if (server) {
+        return api.updateListName(listId, name);
+      } else {
+        const { groceryListManager } = await import('@/core/grocery-list-manager');
+        const list = groceryListManager.getList(listId);
+        list.setListName(name);
+        return list.getList();
+      }
+    },
     onSuccess: () => qc.invalidateQueries({ queryKey: ['list', listId] }),
   });
 }
@@ -69,10 +122,18 @@ export function useRenameList(listId: string) {
 export function useIncrementItem(listId: string) {
   const api = useListsService();
   const qc = useQueryClient();
+  const server = isServerListId(listId);
 
   return useMutation<ListItem | undefined, Error, { itemId: string; step?: number; }>(
     {
-      mutationFn: ({ itemId, step }) => api.incrementItem(listId, itemId, step),
+      mutationFn: async ({ itemId, step }) => {
+        if (server) {
+          return api.incrementItem(listId, itemId, step);
+        } else {
+          const { groceryListManager } = await import('@/core/grocery-list-manager');
+          return groceryListManager.getList(listId).increaseItemAmountById(itemId, step);
+        }
+      },
       onSuccess: () => qc.invalidateQueries({ queryKey: ['list', listId] }),
     }
   );
@@ -81,10 +142,18 @@ export function useIncrementItem(listId: string) {
 export function useDecrementItem(listId: string) {
   const api = useListsService();
   const qc = useQueryClient();
+  const server = isServerListId(listId);
 
   return useMutation<ListItem | undefined, Error, { itemId: string; step?: number; }>(
     {
-      mutationFn: ({ itemId, step }) => api.decrementItem(listId, itemId, step),
+      mutationFn: async ({ itemId, step }) => {
+        if (server) {
+          return api.decrementItem(listId, itemId, step);
+        } else {
+          const { groceryListManager } = await import('@/core/grocery-list-manager');
+          return groceryListManager.getList(listId).decreaseItemAmountById(itemId, step);
+        }
+      },
       onSuccess: () => qc.invalidateQueries({ queryKey: ['list', listId] }),
     }
   );
@@ -93,10 +162,20 @@ export function useDecrementItem(listId: string) {
 export function useRefreshItem(listId: string) {
   const api = useListsService();
   const qc = useQueryClient();
+  const server = isServerListId(listId);
 
   return useMutation<ListItem | undefined, Error, { itemId: string; }>(
     {
-      mutationFn: ({ itemId }) => api.refreshItem(listId, itemId),
+      mutationFn: async ({ itemId }) => {
+        if (server) {
+          return api.refreshItem(listId, itemId);
+        } else {
+          // local refresh is no-op
+          const { groceryListManager } = await import('@/core/grocery-list-manager');
+          const list = groceryListManager.getList(listId);
+          return list.getList().items.find(i => i.id === itemId);
+        }
+      },
       onSuccess: () => qc.invalidateQueries({ queryKey: ['list', listId] }),
     }
   );
@@ -105,10 +184,18 @@ export function useRefreshItem(listId: string) {
 export function useRemoveItem(listId: string) {
   const api = useListsService();
   const qc = useQueryClient();
+  const server = isServerListId(listId);
 
   return useMutation<void, Error, { itemId: string; }>(
     {
-      mutationFn: ({ itemId }) => api.removeItem(listId, itemId),
+      mutationFn: async ({ itemId }) => {
+        if (server) {
+          return api.removeItem(listId, itemId);
+        } else {
+          const { groceryListManager } = await import('@/core/grocery-list-manager');
+          groceryListManager.getList(listId).removeItemByItem(itemId);
+        }
+      },
       onSuccess: () => qc.invalidateQueries({ queryKey: ['list', listId] }),
     }
   );
@@ -117,10 +204,20 @@ export function useRemoveItem(listId: string) {
 export function useRenameItem(listId: string) {
   const api = useListsService();
   const qc = useQueryClient();
+  const server = isServerListId(listId);
 
   return useMutation<ListItem, Error, { itemId: string; name: string; }>(
     {
-      mutationFn: ({ itemId, name }) => api.updateItemName(listId, itemId, name),
+      mutationFn: async ({ itemId, name }) => {
+        if (server) {
+          return api.updateItemName(listId, itemId, name);
+        } else {
+          const { groceryListManager } = await import('@/core/grocery-list-manager');
+          const list = groceryListManager.getList(listId);
+          list.renameItemById(itemId, name);
+          return list.getList().items.find(i => i.id === itemId) as ListItem;
+        }
+      },
       onSuccess: () => qc.invalidateQueries({ queryKey: ['list', listId] }),
     }
   );
@@ -129,10 +226,18 @@ export function useRenameItem(listId: string) {
 export function useMoveItem(listId: string) {
   const api = useListsService();
   const qc = useQueryClient();
+  const server = isServerListId(listId);
 
   return useMutation<ListItem, Error, { itemId: string; newOrder: number; }>(
     {
-      mutationFn: ({ itemId, newOrder }) => api.moveItem(listId, itemId, newOrder),
+      mutationFn: async ({ itemId, newOrder }) => {
+        if (server) {
+          return api.moveItem(listId, itemId, newOrder);
+        } else {
+          const { groceryListManager } = await import('@/core/grocery-list-manager');
+          return groceryListManager.getList(listId).changeItemOrder(itemId, newOrder);
+        }
+      },
       onSuccess: () => qc.invalidateQueries({ queryKey: ['list', listId] }),
     }
   );

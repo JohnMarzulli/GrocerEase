@@ -36,7 +36,15 @@ export default defineConfig(({ mode }: { mode: string }) => {
     resolve: { alias: { '@': path.resolve(__dirname, './src') } },
     server: {
       port: Number(env.VITE_PORT || 5173),
-      open: true
+      open: true,
+      proxy: {
+        // forward API requests to the local Functions host to avoid CORS (and make dev experience smooth)
+        '/api': {
+          target: 'http://localhost:7071',
+          changeOrigin: true,
+          secure: false,
+        },
+      },
     }
   };
 });

@@ -1,15 +1,32 @@
 import type { List, ListItem, ListSummary, ListsService } from '@/services/types';
 
 export class HttpListsService implements ListsService {
-  private base = import.meta.env.VITE_API_BASE || '/api';
+  // API base can be configured via VITE_API_BASE. In development we
+  // fall back to the local Functions host so you don't have to remember
+  // to set the env var every time. `import.meta.env.DEV` is true when
+  // running `npm run dev` or `vite` directly.
+  private base =
+    import.meta.env.VITE_API_BASE ||
+    (import.meta.env.DEV ? 'http://localhost:7071/api' : '/api');
 
   private async json<T>(url: string, init?: RequestInit): Promise<T> {
-    const res = await fetch(url, {
-      headers: { 'Content-Type': 'application/json', ...(init?.headers || {}) },
-      ...init,
-    });
+    // debugging: log the full url so we can see what the client is trying to contact
+    // when things unexpectedly fail (e.g. addItem not hitting server).
+    console.debug('[HttpListsService] fetch', url, init?.method);
+
+    let res: Response;
+    try {
+      res = await fetch(url, {
+        headers: { 'Content-Type': 'application/json', ...(init?.headers || {}) },
+        ...init,
+      });
+    } catch (err: any) {
+      // network/fetch failure
+      throw new Error(`Fetch failed for ${url}: ${err?.message ?? err}`);
+    }
+
     if (!res.ok) {
-      throw new Error(`HTTP ${res.status}`);
+      throw new Error(`HTTP ${res.status} @ ${url}`);
     }
     return (await res.json()) as T;
   }

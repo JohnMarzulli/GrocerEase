@@ -1,7 +1,7 @@
 import { getItemsText, getListItemCount, getListName, groceryListManager, sortListItems } from '@/core/grocery-list-manager';
 import { useCreateList, useLists, useUploadLocalList } from '@/services/hooks';
-import { getServerLists } from '@/core/server-lists';
-import { useCallback } from 'react';
+import { getServerLists, addServerList } from '@/core/server-lists';
+import { useCallback, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom'
 import { useToast } from '@/state/toast';;
 
@@ -22,13 +22,55 @@ export default function ListSelector() {
     navigate(`/edit?id=${listId}`);
   }, [lists, create, navigate]);
 
+  const [showCreateOptions, setShowCreateOptions] = useState(false);
+
   return (
     <div className="mobile-shell">
       <header className="header" style={{ textAlign: 'center', fontSize: '3rem', paddingBottom: '5%' }}>GrocerEase</header>
       <button
         className="create-tile"
         style={{ width: '90%', alignItems: 'center', margin: '0 auto' }}
-        onClick={() => goToList(crypto.randomUUID())}>Create New List</button>
+        onClick={() => setShowCreateOptions(true)}
+      >Create New List</button>
+      {showCreateOptions && (
+        <div className="create-options" style={{ marginTop: '0.5rem', display: 'flex', justifyContent: 'center', gap: '1rem' }}>
+          <button
+            className="tile"
+            onClick={() => {
+              setShowCreateOptions(false);
+              const id = crypto.randomUUID();
+              goToList(id);
+            }}
+          >Local</button>
+          <button
+            className="tile"
+            onClick={() => {
+              setShowCreateOptions(false);
+              const localId = crypto.randomUUID();
+              create.mutate('New List', {
+                onSuccess: (res) => {
+                  addServerList({ ...res, isServer: true });
+                  goToList(res.id);
+                },
+                onError: (err: any) => {
+                  const msg = err?.message ?? err;
+                  // if the server endpoint is missing or unreachable, fall back to a local list
+                  if (msg === 'Failed to fetch' || /^HTTP 404/.test(msg)) {
+                    show(`Server unavailable (${import.meta.env.VITE_API_BASE || '/api'}); created local list instead`);
+                    goToList(localId);
+                  } else {
+                    show(`Create failed: ${msg}`);
+                  }
+                },
+              });
+            }}
+          >Public</button>
+          <button
+            className="tile"
+            onClick={() => setShowCreateOptions(false)}
+          >Cancel</button>
+        </div>
+      )}
       <main className="content">
         <section className="grid2" style={{ display: 'flex', justifyContent: 'center' }}>
           <div
@@ -87,7 +129,7 @@ export default function ListSelector() {
                       aria-label={`Upload ${getListName(listId)} to server`}
                       title="Upload to server"
                     >
-                      {uploadLocal.isPending ? 'Uploading…' : '?'}
+                      {uploadLocal.isPending ? 'Uploadingï¿½' : '?'}
                     </button>
                   )}
 

@@ -8,6 +8,7 @@ test.describe('Mobile scrolling', () => {
         // Create a list with many items so the page is scrollable
         await page.goto('/lists');
         await page.click('button:has-text("Create New List")');
+        await page.click('button:has-text("Local")');
 
         const input = page.locator('input[placeholder="New Item Name"]');
         for (let i = 0; i < 20; i++) {

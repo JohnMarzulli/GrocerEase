@@ -1,5 +1,6 @@
 const { app } = require('@azure/functions');
 const db = require('../../db/client');
+const mem = require('./memoryStore');
 
 app.http('getLists', {
   methods: ['GET'],
@@ -12,11 +13,8 @@ app.http('getLists', {
         return { jsonBody: lists };
       }
 
-      return {
-        jsonBody: [
-          { id: 'server-1', name: 'Sample Server List', createdAt: new Date().toISOString() }
-        ]
-      };
+      // in-memory fallback: return everything we stored locally
+      return { jsonBody: mem.getLists() };
     } catch (err) {
       context.log(err);
       return { status: 500, body: err.message };

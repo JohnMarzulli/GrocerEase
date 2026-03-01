@@ -122,4 +122,105 @@ async function uploadList(list) {
   }
 }
 
+// Add helpers for list/item mutations
+
+async function addItem(listId, name, qty = 1, unit = 'ea') {
+  const p = await getPool();
+  const itemId = crypto.randomUUID();
+  const res = await p.request()
+    .input('id', sql.UniqueIdentifier, itemId)
+    .input('listId', sql.UniqueIdentifier, listId)
+    .input('name', sql.NVarChar(255), name)
+    .input('qty', sql.Int, qty)
+    .input('unit', sql.NVarChar(30), unit)
+    .query('INSERT INTO dbo.items (id, list_id, name, qty, unit, status, position, created_at, updated_at) VALUES (@id, @listId, @name, @qty, @unit, @status, 0, SYSUTCDATETIME(), SYSUTCDATETIME()); SELECT * FROM dbo.items WHERE id = @id',
+      { status: 'pending' });
+  return res.recordset[0];
+}
+
+async function updateListName(listId, name) {
+  const p = await getPool();
+  await p.request()
+    .input('id', sql.UniqueIdentifier, listId)
+    .input('name', sql.NVarChar(255), name)
+    .query('UPDATE dbo.lists SET name = @name WHERE id = @id');
+}
+
+async function modifyItem(listId, itemId, op, payload = {}) {
+  const p = await getPool();
+  // Ensure the item belongs to the list
+  const itemRes = await p.request()
+    .input('id', sql.UniqueIdentifier, itemId)
+    .input('listId', sql.UniqueIdentifier, listId)
+    .query('SELECT * FROM dbo.items WHERE id = @id AND list_id = @listId');
+  if (!itemRes.recordset.length) return null;
+  const item = itemRes.recordset[0];
+
+  switch (op) {
+    case 'toggle': {
+      const newStatus = item.status === 'pending' ? 'completed' : 'pending';
+      await p.request()
+        .input('id', sql.UniqueIdentifier, itemId)
+        .input('status', sql.NVarChar(20), newStatus)
+        .query('UPDATE dbo.items SET status = @status WHERE id = @id');
+      item.status = newStatus;
+      break;
+    }
+    case 'increment': {
+      const step = payload.step || 1;
+      const newQty = (item.qty || 0) + step;
+      await p.request()
+        .input('id', sql.UniqueIdentifier, itemId)
+        .input('qty', sql.Int, newQty)
+        .query('UPDATE dbo.items SET qty = @qty WHERE id = @id');
+      item.qty = newQty;
+      break;
+    }
+    case 'decrement': {
+      const step = payload.step || 1;
+      const newQty = (item.qty || 0) - step;
+      if (newQty <= 0) {
+        // delete item
+        await p.request()
+          .input('id', sql.UniqueIdentifier, itemId)
+          .query('DELETE FROM dbo.items WHERE id = @id');
+        return null;
+      }
+      await p.request()
+        .input('id', sql.UniqueIdentifier, itemId)
+        .input('qty', sql.Int, newQty)
+        .query('UPDATE dbo.items SET qty = @qty WHERE id = @id');
+      item.qty = newQty;
+      break;
+    }
+    case 'rename': {
+      const name = payload.name || '';
+      await p.request()
+        .input('id', sql.UniqueIdentifier, itemId)
+        .input('name', sql.NVarChar(255), name)
+        .query('UPDATE dbo.items SET name = @name WHERE id = @id');
+      item.name = name;
+      break;
+    }
+    case 'move': {
+      const newOrder = payload.newOrder || 0;
+      await p.request()
+        .input('id', sql.UniqueIdentifier, itemId)
+        .input('position', sql.Int, newOrder)
+        .query('UPDATE dbo.items SET position = @position WHERE id = @id');
+      item.position = newOrder;
+      break;
+    }
+    case 'refresh': {
+      // no-op for now
+      break;
+    }
+    default:
+      throw new Error(`Unsupported op ${op}`);
+  }
+  return item;
+}
+
+module.exports = { getLists, getList, uploadList, addItem, updateListName, modifyItem };
+
 module.exports = { getLists, getList, uploadList };

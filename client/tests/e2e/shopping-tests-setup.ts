@@ -11,6 +11,7 @@ export async function createListAndShop(page: any) {
     // Create a list first
     await page.goto('/lists');
     await page.click('button:has-text("Create New List")');
+    await page.click('button:has-text("Local")');
 
     // Add an item
     const input = page.locator('input[placeholder="New Item Name"]');
