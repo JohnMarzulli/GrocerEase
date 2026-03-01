@@ -8,9 +8,10 @@
     "start:dev": "func start --language-worker --verbose"
   },
   "dependencies": {
-    "dotenv": "^16.0.0",
-    "mssql": "^9.0.1",
     "@azure/functions": "^4.0.0",
-    "@azure/identity": "^3.0.0"
+    "@azure/identity": "^3.0.0",
+    "azure-functions-core-tools": "^4.7.0",
+    "dotenv": "^16.0.0",
+    "mssql": "^9.0.1"
   }
 }
