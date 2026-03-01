@@ -37,6 +37,18 @@ export class MockListsService implements ListsService {
     return { id, name, createdAt };
   }
 
+  async uploadList(listToUpload: List): Promise<ListSummary> {
+    // Create the list
+    const summary = await this.createList(listToUpload.name);
+
+    // Add items in upload order
+    for (const it of (listToUpload.items ?? [])) {
+      await this.addItem(summary.id, it.name, it.qty, it.unit);
+    }
+
+    return { ...summary, isServer: true };
+  }
+
   async getList(id: string): Promise<List> {
     const found = this.lists.get(id);
     if (!found) throw new Error('List not found');

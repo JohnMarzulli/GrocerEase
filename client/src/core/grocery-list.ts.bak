@@ -19,7 +19,7 @@ export class GroceryList {
         try {
             const loadedList = getSavedList(listId);
             step = 'load::loaded';
-            return new GroceryList(loadedList, true);
+            return new GroceryList(loadedList);
         }
         catch {
             if (isUuid(listId)) {
@@ -30,18 +30,8 @@ export class GroceryList {
         }
     }
 
-    /**
-     * Create a GroceryList from an in-memory list object. Optionally prevent local persistence.
-     * @param list The list data
-     * @param persistLocal Whether changes should be saved to localStorage. Default false.
-     */
-    static fromData(list: List, persistLocal: boolean = false): GroceryList {
-        return new GroceryList(list, persistLocal);
-    }
-
     public constructor(
-        list: List,
-        private persistLocal: boolean = true
+        list: List
     ) {
         // Ensure all items have an order
         list.items.forEach((item, index) => {
@@ -62,10 +52,9 @@ export class GroceryList {
     }
 
     /**
-     * Save the list to storage (no-op when persistLocal is false).
+     * Save the list to storage.
      */
     public save(): void {
-        if (!this.persistLocal) return;
         safeLocalStorageSet(this.list.id, JSON.stringify(this.list));
     }
 
@@ -341,7 +330,7 @@ export class GroceryList {
 
         safeLocalStorageSet(listId, JSON.stringify(list));
 
-        return new GroceryList(list, true);
+        return new GroceryList(list);
     }
 
     private static createNewList(): GroceryList {
@@ -355,7 +344,7 @@ export class GroceryList {
 
         safeLocalStorageSet(id, JSON.stringify(list));
 
-        return new GroceryList(list, true);
+        return new GroceryList(list);
     }
 
     private list: List;

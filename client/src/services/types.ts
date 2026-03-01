@@ -60,6 +60,8 @@ export interface ListSummary {
   id: string;
   name: string;
   createdAt: string; // ISO string
+  // Optional indicator that this list is stored on a server
+  isServer?: boolean;
 }
 
 export interface List extends ListSummary {
@@ -69,6 +71,8 @@ export interface List extends ListSummary {
 export interface ListsService {
   getLists(): Promise<ListSummary[]>;
   createList(name: string): Promise<ListSummary>;
+  // Upload a full local list to the server (create list + items) and return its summary
+  uploadList(list: List): Promise<ListSummary>;
   getList(id: string): Promise<List>;
   addItem(listId: string, name: string, qty?: number, unit?: string): Promise<ListItem>;
   toggleItem(listId: string, itemId: string): Promise<ListItem>;

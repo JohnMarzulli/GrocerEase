@@ -30,6 +30,12 @@ export class HttpListsService implements ListsService {
     return this.json(`${this.base}/list-items/${itemId}`, { method: 'PATCH', body: JSON.stringify({ op: 'toggle', listId }) });
   }
 
+  async uploadList(list: List): Promise<ListSummary> {
+    // Upload a full local list to the server. Server should create a list and items and
+    // return a ListSummary { id, name, createdAt } and optionally isServer flag.
+    return this.json(`${this.base}/lists/upload`, { method: 'POST', body: JSON.stringify({ list }) });
+  }
+
   async updateListName(listId: string, name: string): Promise<List> {
     return this.json(`${this.base}/lists/${listId}`, { method: 'PATCH', body: JSON.stringify({ name }) });
   }

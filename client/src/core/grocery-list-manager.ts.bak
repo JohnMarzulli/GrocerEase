@@ -1,6 +1,5 @@
 import * as encoding from '@/core/encoding';
 import { GroceryList } from './grocery-list';
-import { getServerLists, removeServerList } from './server-lists';
 
 /**
  * Top level management for grocery lists.
@@ -16,12 +15,7 @@ export class GroceryListManager {
      * @returns The set of lists found
      */
     public getAvailableListIds(): string[] {
-        const localIds = Object.keys(localStorage).filter(key => isUuid(key));
-        const serverIds = getServerLists().map(s => s.id).filter(id => isUuid(id));
-
-        // Combine and deduplicate
-        const set = new Set<string>([...localIds, ...serverIds]);
-        return Array.from(set);
+        return Object.keys(localStorage).filter(key => isUuid(key));
     }
 
     /**
@@ -34,14 +28,6 @@ export class GroceryListManager {
     public getList(
         id: string
     ): GroceryList {
-        // If this id is a server-side list, return a non-persisted GroceryList using the
-        // server-side summary (name/createdAt) if available. This avoids saving server
-        // lists to localStorage while still providing a GroceryList object for the UI.
-        const serverSummary = getServerLists().find(s => s.id === id);
-        if (serverSummary) {
-            return GroceryList.fromData({ id: serverSummary.id, name: serverSummary.name, createdAt: serverSummary.createdAt, items: [] }, false);
-        }
-
         return GroceryList.load(id);
     }
 
@@ -112,12 +98,6 @@ export class GroceryListManager {
     ): void {
         try {
             localStorage.removeItem(id);
-            // Ensure server metadata is removed if present
-            try {
-                removeServerList(id);
-            } catch {
-                // ignore
-            }
         }
         catch {
             // ignore

@@ -137,3 +137,34 @@ export function useMoveItem(listId: string) {
     }
   );
 }
+
+// Upload a local GroceryList to the server and remove the local copy on success
+export function useUploadLocalList() {
+  const api = useListsService();
+  const qc = useQueryClient();
+
+  return useMutation<List, Error, { listId: string }>(
+    {
+      mutationFn: async ({ listId }) => {
+        // Dynamically import to avoid circular dependency in module load
+        const { groceryListManager } = await import('@/core/grocery-list-manager');
+        const { getServerLists, addServerList } = await import('@/core/server-lists');
+
+        const list = groceryListManager.getList(listId).getList();
+
+        const uploaded = await api.uploadList(list);
+
+        // Mark as server list locally
+        addServerList({ ...uploaded, isServer: true });
+
+        // Remove local copy
+        groceryListManager.removeList(listId);
+
+        // Invalidate list queries
+        qc.invalidateQueries({ queryKey: ['lists'] });
+
+        return uploaded as unknown as List;
+      },
+    }
+  );
+}

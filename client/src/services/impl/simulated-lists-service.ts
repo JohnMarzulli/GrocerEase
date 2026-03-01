@@ -37,6 +37,12 @@ export class SimulatedListsService implements ListsService {
     return list;
   }
 
+  async uploadList(listToUpload: List): Promise<ListSummary> {
+    // Simulate server upload: for now just return the list summary and mark as server-stored
+    await sleep(latency());
+    return { id: listToUpload.id, name: listToUpload.name, createdAt: listToUpload.createdAt, isServer: true };
+  }
+
   async addItem(listId: string, name: string, qty = 1, unit = 'ea'): Promise<ListItem> {
     await sleep(latency());
     if (listId && listId !== this.groceryList.getList().id) throw new Error('List not found');
