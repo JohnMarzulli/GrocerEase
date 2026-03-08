@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const sql = require('mssql');
 const { DefaultAzureCredential } = require('@azure/identity');
 
@@ -127,15 +128,26 @@ async function uploadList(list) {
 async function addItem(listId, name, qty = 1, unit = 'ea') {
   const p = await getPool();
   const itemId = crypto.randomUUID();
-  const res = await p.request()
+  const safeQty = Math.max(1, Number(qty) || 1);
+  const safeUnit = unit || 'ea';
+
+  // Get current max position so the new item appends at the end
+  const posRes = await p.request()
+    .input('listId', sql.UniqueIdentifier, listId)
+    .query('SELECT COALESCE(MAX(position), -1) AS maxPos FROM dbo.items WHERE list_id = @listId');
+  const position = (posRes.recordset[0]?.maxPos ?? -1) + 1;
+
+  await p.request()
     .input('id', sql.UniqueIdentifier, itemId)
     .input('listId', sql.UniqueIdentifier, listId)
     .input('name', sql.NVarChar(255), name)
-    .input('qty', sql.Int, qty)
-    .input('unit', sql.NVarChar(30), unit)
-    .query('INSERT INTO dbo.items (id, list_id, name, qty, unit, status, position, created_at, updated_at) VALUES (@id, @listId, @name, @qty, @unit, @status, 0, SYSUTCDATETIME(), SYSUTCDATETIME()); SELECT * FROM dbo.items WHERE id = @id',
-      { status: 'pending' });
-  return res.recordset[0];
+    .input('qty', sql.Int, safeQty)
+    .input('unit', sql.NVarChar(30), safeUnit)
+    .input('status', sql.NVarChar(20), 'pending')
+    .input('position', sql.Int, position)
+    .query('INSERT INTO dbo.items (id, list_id, name, qty, unit, status, position, created_at, updated_at) VALUES (@id, @listId, @name, @qty, @unit, @status, @position, SYSUTCDATETIME(), SYSUTCDATETIME())');
+
+  return { id: itemId, name, qty: safeQty, unit: safeUnit, status: 'pending', order: position };
 }
 
 async function updateListName(listId, name) {
@@ -218,9 +230,8 @@ async function modifyItem(listId, itemId, op, payload = {}) {
     default:
       throw new Error(`Unsupported op ${op}`);
   }
-  return item;
+  // Map DB column name to the field name the client expects
+  return { ...item, order: item.position };
 }
 
 module.exports = { getLists, getList, uploadList, addItem, updateListName, modifyItem };
-
-module.exports = { getLists, getList, uploadList };

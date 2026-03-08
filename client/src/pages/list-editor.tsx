@@ -1,5 +1,5 @@
 import ShareButton from '@/components/share-button';
-import { getValidListIdFromQueryParams, groceryListManager } from '@/core/grocery-list-manager';
+import { getValidListIdFromQueryParams } from '@/core/grocery-list-manager';
 import { useAddItem, useDecrementItem, useIncrementItem, useList, useMoveItem, useRefreshItem, useRenameItem, useRenameList } from '@/services/hooks';
 import { useToast } from '@/state/toast';
 import { FormEvent, useEffect, useLayoutEffect, useRef, useState } from 'react';
@@ -8,14 +8,7 @@ import { Link } from 'react-router-dom';
 export default function ListEditor() {
   // Extract GUID from the query string as listId
   const listId: string = getValidListIdFromQueryParams();
-
-  // Resolve the actual list id via the manager using the guid
-  const [id, setId] = useState<string>('');
-  useEffect(() => {
-    const list = groceryListManager.getList(listId);
-    // use the resolved/created list id so data fetching works for new lists
-    setId(list.getListId());
-  }, [listId]);
+  const id = listId;
 
   const { data: _list, isLoading, error } = useList(id, { enabled: !!id });
 

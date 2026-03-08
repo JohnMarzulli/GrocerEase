@@ -1,5 +1,6 @@
 import { compressData } from '@/core/encoding';
 import { getValidListIdFromQueryParams, groceryListManager } from '@/core/grocery-list-manager';
+import { isServerListId } from '@/core/server-lists';
 import { useToast } from '@/state/toast';
 
 export default function ShareButton() {
@@ -8,10 +9,18 @@ export default function ShareButton() {
 
     const onClick = async () => {
         try {
-            const list = groceryListManager.getList(listIdFromQs).getList();
-            const json = JSON.stringify(list);
-            const compressed = await compressData(json);
-            const link = `${location.origin}/import?data=${encodeURIComponent(compressed)}`;
+            let link: string;
+
+            if (isServerListId(listIdFromQs)) {
+                // Cloud list: share by reference so recipients open the live cloud copy
+                link = `${location.origin}/edit?id=${listIdFromQs}`;
+            } else {
+                // Local list: embed the full content so the link is self-contained
+                const list = groceryListManager.getList(listIdFromQs).getList();
+                const json = JSON.stringify(list);
+                const compressed = await compressData(json);
+                link = `${location.origin}/import?data=${encodeURIComponent(compressed)}`;
+            }
 
             await navigator.clipboard.writeText(link);
 

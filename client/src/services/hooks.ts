@@ -1,8 +1,8 @@
+import { addServerList, isServerListId } from '@/core/server-lists';
 import { TOKENS } from '@/di/tokens';
 import { useService } from '@/di/useService';
 import type { List, ListItem, ListsService } from '@/services/types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { isServerListId, addServerList } from '@/core/server-lists';
 import { useEffect } from 'react';
 
 const useListsService = (): ListsService => useService<ListsService>(TOKENS.ListsService);
@@ -45,7 +45,23 @@ export function useList(id?: string, opts?: { enabled?: boolean; }) {
       if (server) {
         return api.getList(id as string);
       }
-      // local: load from manager
+
+      // Not a known server list. If the ID is also absent from localStorage it may
+      // be a cloud list being opened via a shared link on a fresh session.
+      // Attempt a server lookup before falling back to creating a new local list.
+      const localRaw = typeof localStorage !== 'undefined' ? localStorage.getItem(id as string) : null;
+      if (!localRaw) {
+        try {
+          const serverList = await api.getList(id as string);
+          // Register so subsequent operations (add item, toggle, etc.) route correctly.
+          addServerList({ id: serverList.id, name: serverList.name, createdAt: serverList.createdAt, isServer: true });
+          return serverList;
+        } catch {
+          // Not on server – fall through and create a new local list
+        }
+      }
+
+      // local: load from manager (creates a new empty list if not found)
       const { groceryListManager } = await import('@/core/grocery-list-manager');
       return groceryListManager.getList(id as string).getList();
     },
@@ -248,7 +264,7 @@ export function useUploadLocalList() {
   const api = useListsService();
   const qc = useQueryClient();
 
-  return useMutation<List, Error, { listId: string }>(
+  return useMutation<List, Error, { listId: string; }>(
     {
       mutationFn: async ({ listId }) => {
         // Dynamically import to avoid circular dependency in module load

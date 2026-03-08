@@ -56,3 +56,4 @@ client/test-results/*
 client/playwright-report/*
 server/node_modules
 server-package.zip
+private-notes.md
