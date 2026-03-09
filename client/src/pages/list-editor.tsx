@@ -442,23 +442,23 @@ export default function ListEditor() {
           <Link className="interactive-btn" to="/" style={{ width: '25%', textAlign: 'center', alignContent: 'center', marginRight: 2 }}>Home</Link>
           <Link className="interactive-btn" to={`/shopping?id=${encodeURIComponent(listId)}`} style={{ width: '25%', textAlign: 'center', alignContent: 'center', marginRight: 2 }}>Shop</Link>
           <Link className="interactive-btn" to="/lists" style={{ width: '25%', textAlign: 'center', alignContent: 'center' }}>Other Lists</Link>
-          {!isServer && (
-            <button
-              className="interactive-btn"
-              style={{ width: '25%', textAlign: 'center', alignContent: 'center' }}
-              disabled={uploadLocal.isPending}
-              title="Upload to cloud"
-              onClick={() => uploadLocal.mutate({ listId }, {
-                onSuccess: (res) => navigate(`/edit?id=${res.id}`, { replace: true }),
-                onError: (err: any) => show(`Upload failed: ${err?.message ?? err}`),
-              })}
-            >
-              {uploadLocal.isPending ? '…' : '☁'}
-            </button>
-          )}
         </div>
       </div>
       <ShareButton />
+      {!isServer && (
+        <button
+          className="upload-btn"
+          disabled={uploadLocal.isPending}
+          title="Convert to cloud list"
+          aria-label="Convert to cloud list"
+          onClick={() => uploadLocal.mutate({ listId }, {
+            onSuccess: (res) => navigate(`/edit?id=${res.id}`, { replace: true }),
+            onError: (err: any) => show(`Upload failed: ${err?.message ?? err}`),
+          })}
+        >
+          {uploadLocal.isPending ? '…' : '☁'}
+        </button>
+      )}
     </div>
   );
 }

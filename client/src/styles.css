@@ -365,13 +365,11 @@ body {
   animation: toast-in .2s ease-out
 }
 
-/* Share button - fixed in bottom-right */
+/* Share button - fixed top-right */
 .share-btn {
   position: fixed;
   right: 24px;
-  /* Shows up more to the right on the iPhone than in the dev browser */
   top: 16px;
-  /* align with footer */
   background: var(--card);
   color: var(--fg);
   border: none;
@@ -389,6 +387,35 @@ body {
 
 .share-btn svg {
   display: block;
+}
+
+/* Upload-to-cloud button - fixed top-left, mirrors share-btn */
+.upload-btn {
+  position: fixed;
+  left: 24px;
+  top: 16px;
+  background: var(--card);
+  color: var(--fg);
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+  z-index: 70;
+  font-size: 20px;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+}
+
+.upload-btn:active {
+  transform: translateY(1px);
+}
+
+.upload-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
 }
 
 @keyframes toast-in {

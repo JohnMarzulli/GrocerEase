@@ -3,26 +3,12 @@ import { TOKENS } from '@/di/tokens';
 import { useService } from '@/di/useService';
 import type { List, ListItem, ListsService } from '@/services/types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useEffect } from 'react';
 
 const useListsService = (): ListsService => useService<ListsService>(TOKENS.ListsService);
 
 export function useLists() {
   const api = useListsService();
-  const { data, ...rest } = useQuery({ queryKey: ['lists'], queryFn: () => api.getLists() });
-
-  // whenever we successfully fetch the summaries, make sure they're
-  // remembered in local storage. This keeps `isServerListId` accurate even
-  // if the user navigates back to a previously‑created server list on a
-  // fresh load.
-
-  useEffect(() => {
-    if (data && Array.isArray(data)) {
-      data.forEach((l) => addServerList(l));
-    }
-  }, [data]);
-
-  return { data, ...rest };
+  return useQuery({ queryKey: ['lists'], queryFn: () => api.getLists() });
 }
 
 export function useCreateList() {

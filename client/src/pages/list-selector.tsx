@@ -1,6 +1,6 @@
 import { getItemsText, getListItemCount, getListName, groceryListManager, sortListItems } from '@/core/grocery-list-manager';
 import { addServerList, getServerLists } from '@/core/server-lists';
-import { useCreateList, useLists } from '@/services/hooks';
+import { useCreateList } from '@/services/hooks';
 import { useToast } from '@/state/toast';
 import { useCallback, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -26,15 +26,14 @@ function LocalIcon() {
  */
 export default function ListSelector() {
   const availableLists = groceryListManager.getAvailableListIds();
-  const { data: lists } = useLists();
   const create = useCreateList();
   const navigate = useNavigate();
-  const serverIds = new Set<string>([...(lists ?? []).map(l => l.id), ...getServerLists().map(l => l.id)]);
+  const serverIds = new Set<string>(getServerLists().map(l => l.id));
   const { show } = useToast();
 
   const goToList = useCallback((listId: string) => {
     navigate(`/edit?id=${listId}`);
-  }, [lists, create, navigate]);
+  }, [create, navigate]);
 
   const [showCreateOptions, setShowCreateOptions] = useState(false);
 
