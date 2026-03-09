@@ -1,9 +1,24 @@
 import { getItemsText, getListItemCount, getListName, groceryListManager, sortListItems } from '@/core/grocery-list-manager';
-import { useCreateList, useLists, useUploadLocalList } from '@/services/hooks';
-import { getServerLists, addServerList } from '@/core/server-lists';
+import { addServerList, getServerLists } from '@/core/server-lists';
+import { useCreateList, useLists } from '@/services/hooks';
+import { useToast } from '@/state/toast';
 import { useCallback, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom'
-import { useToast } from '@/state/toast';;
+import { Link, useNavigate } from 'react-router-dom';
+
+function CloudIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-label="Cloud list" style={{ opacity: 0.7, flexShrink: 0 }}>
+      <path d="M19.35 10.04A7.49 7.49 0 0 0 12 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 0 0 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z" />
+    </svg>
+  );
+}
+
+function LocalIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-label="Local list" style={{ opacity: 0.7, flexShrink: 0 }}>
+    </svg>
+  );
+}
 
 /**
  * Allows the user to select a list to edit, or to create a new one.
@@ -13,7 +28,6 @@ export default function ListSelector() {
   const availableLists = groceryListManager.getAvailableListIds();
   const { data: lists } = useLists();
   const create = useCreateList();
-  const uploadLocal = useUploadLocalList();
   const navigate = useNavigate();
   const serverIds = new Set<string>([...(lists ?? []).map(l => l.id), ...getServerLists().map(l => l.id)]);
   const { show } = useToast();
@@ -108,30 +122,17 @@ export default function ListSelector() {
                       color: getListItemCount(listId) > 0 ? 'inherit' : 'gray',
                       textOverflow: 'ellipsis',
                       overflow: 'hidden',
-                      touchAction: 'pan-y', // Enable vertical touch scrolling
+                      touchAction: 'pan-y',
                       cursor: 'pointer'
                     }}
                     onClick={() => goToList(listId)}
                   >
-                    {getListName(listId)}<br />
-                    {getItemsText(listId)}
+                    <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem' }}>
+                      {serverIds.has(listId) ? <CloudIcon /> : <LocalIcon />}
+                      {getListName(listId)}
+                    </span>
+                    <span style={{ fontSize: '0.85em' }}>{getItemsText(listId)}</span>
                   </button>
-                  {!serverIds.has(listId) && (
-                    <button
-                      className="primary-tile"
-                      onClick={() => {
-                        uploadLocal.mutate({ listId }, {
-                          onSuccess: () => { show('Uploaded to server'); navigate(0); },
-                          onError: (err: any) => show(`Upload failed: ${err?.message ?? err}`),
-                        });
-                      }}
-                      disabled={uploadLocal.isPending}
-                      aria-label={`Upload ${getListName(listId)} to server`}
-                      title="Upload to server"
-                    >
-                      {uploadLocal.isPending ? 'Uploading�' : '?'}
-                    </button>
-                  )}
 
                   <button
                     className="danger-tile"

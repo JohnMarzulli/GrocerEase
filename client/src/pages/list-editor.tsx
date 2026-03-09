@@ -1,14 +1,18 @@
 import ShareButton from '@/components/share-button';
 import { getValidListIdFromQueryParams } from '@/core/grocery-list-manager';
-import { useAddItem, useDecrementItem, useIncrementItem, useList, useMoveItem, useRefreshItem, useRenameItem, useRenameList } from '@/services/hooks';
+import { isServerListId } from '@/core/server-lists';
+import { useAddItem, useDecrementItem, useIncrementItem, useList, useMoveItem, useRefreshItem, useRenameItem, useRenameList, useUploadLocalList } from '@/services/hooks';
 import { useToast } from '@/state/toast';
 import { FormEvent, useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 export default function ListEditor() {
   // Extract GUID from the query string as listId
   const listId: string = getValidListIdFromQueryParams();
   const id = listId;
+  const isServer = isServerListId(id);
+  const navigate = useNavigate();
+  const uploadLocal = useUploadLocalList();
 
   const { data: _list, isLoading, error } = useList(id, { enabled: !!id });
 
@@ -438,6 +442,20 @@ export default function ListEditor() {
           <Link className="interactive-btn" to="/" style={{ width: '25%', textAlign: 'center', alignContent: 'center', marginRight: 2 }}>Home</Link>
           <Link className="interactive-btn" to={`/shopping?id=${encodeURIComponent(listId)}`} style={{ width: '25%', textAlign: 'center', alignContent: 'center', marginRight: 2 }}>Shop</Link>
           <Link className="interactive-btn" to="/lists" style={{ width: '25%', textAlign: 'center', alignContent: 'center' }}>Other Lists</Link>
+          {!isServer && (
+            <button
+              className="interactive-btn"
+              style={{ width: '25%', textAlign: 'center', alignContent: 'center' }}
+              disabled={uploadLocal.isPending}
+              title="Upload to cloud"
+              onClick={() => uploadLocal.mutate({ listId }, {
+                onSuccess: (res) => navigate(`/edit?id=${res.id}`, { replace: true }),
+                onError: (err: any) => show(`Upload failed: ${err?.message ?? err}`),
+              })}
+            >
+              {uploadLocal.isPending ? '…' : '☁'}
+            </button>
+          )}
         </div>
       </div>
       <ShareButton />
