@@ -1,6 +1,6 @@
 import { getItemsText, getListItemCount, getListName, groceryListManager, sortListItems } from '@/core/grocery-list-manager';
 import { addServerList, getServerLists } from '@/core/server-lists';
-import { useCreateList } from '@/services/hooks';
+import { useCreateList, useServerListDetails } from '@/services/hooks';
 import { useToast } from '@/state/toast';
 import { useCallback, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -29,6 +29,8 @@ export default function ListSelector() {
   const create = useCreateList();
   const navigate = useNavigate();
   const serverIds = new Set<string>(getServerLists().map(l => l.id));
+  const serverIdArray = Array.from(serverIds);
+  const { data: serverDetails } = useServerListDetails(serverIdArray);
   const { show } = useToast();
 
   const goToList = useCallback((listId: string) => {
@@ -128,9 +130,17 @@ export default function ListSelector() {
                   >
                     <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem' }}>
                       {serverIds.has(listId) ? <CloudIcon /> : <LocalIcon />}
-                      {getListName(listId)}
+                      {serverIds.has(listId)
+                        ? (serverDetails?.[listId]?.name ?? getListName(listId))
+                        : getListName(listId)}
                     </span>
-                    <span style={{ fontSize: '0.85em' }}>{getItemsText(listId)}</span>
+                    <span style={{ fontSize: '0.85em' }}>
+                      {serverIds.has(listId)
+                        ? serverDetails?.[listId] != null
+                          ? `${serverDetails[listId].remaining} / ${serverDetails[listId].total} items remaining`
+                          : getItemsText(listId)
+                        : getItemsText(listId)}
+                    </span>
                   </button>
 
                   <button
