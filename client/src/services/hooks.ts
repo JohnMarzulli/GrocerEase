@@ -53,6 +53,7 @@ export function useList(id?: string, opts?: { enabled?: boolean; }) {
     },
     enabled: opts?.enabled ?? true,
     retry: false, // if not found, surface error immediately so UI can create a new list
+    refetchInterval: server ? 1_000 : false,
   });
 }
 
@@ -243,6 +244,32 @@ export function useMoveItem(listId: string) {
       onSuccess: () => qc.invalidateQueries({ queryKey: ['list', listId] }),
     }
   );
+}
+
+export function useServerListDetails(ids: string[]) {
+  const api = useListsService();
+  const key = ids.slice().sort().join(',');
+  return useQuery({
+    queryKey: ['serverListDetails', key],
+    queryFn: async () => {
+      const results = await Promise.allSettled(ids.map(id => api.getList(id)));
+      const map: Record<string, { name: string; total: number; remaining: number }> = {};
+      results.forEach((result, i) => {
+        if (result.status === 'fulfilled') {
+          const list = result.value;
+          map[ids[i]] = {
+            name: list.name,
+            total: list.items.length,
+            remaining: list.items.filter(item => item.status !== 'completed').length,
+          };
+        }
+      });
+      return map;
+    },
+    staleTime: 30_000,
+    refetchInterval: 60_000,
+    enabled: ids.length > 0,
+  });
 }
 
 // Upload a local GroceryList to the server and remove the local copy on success
